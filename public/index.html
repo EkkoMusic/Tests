@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>La Cagnotte Secrète</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="container">
+
+    <header>
+      <h1>🎰 La Cagnotte Secrète</h1>
+      <p class="subtitle">Misez 2€ et tentez votre chance !</p>
+    </header>
+
+    <!-- Pots display -->
+    <section class="pots">
+
+      <div class="pot-card secret">
+        <div class="pot-icon">🔒</div>
+        <div class="pot-label">Cagnotte Secrète</div>
+        <div class="pot-bar-wrap">
+          <div class="pot-bar" id="potBar"></div>
+        </div>
+        <div class="pot-hint">Atteignez 10€ pour déclencher un gain !</div>
+      </div>
+
+      <div class="pot-card special">
+        <div class="pot-icon">⭐</div>
+        <div class="pot-label">Cagnotte Spéciale</div>
+        <div class="pot-amount" id="specialPotAmount">0.00€</div>
+        <div class="pot-bar-wrap">
+          <div class="pot-bar special-bar" id="specialPotBar"></div>
+        </div>
+        <div class="pot-hint">Atteignez 100€ pour le JACKPOT !</div>
+      </div>
+
+    </section>
+
+    <!-- Bet form -->
+    <section class="bet-section">
+      <form id="betForm">
+        <input
+          type="text"
+          id="playerName"
+          placeholder="Votre prénom"
+          maxlength="30"
+          autocomplete="off"
+          required
+        />
+        <button type="submit" id="betBtn">
+          <span class="btn-text">Miser 2€</span>
+          <span class="btn-spinner" hidden>⏳</span>
+        </button>
+      </form>
+    </section>
+
+    <!-- Notification area -->
+    <section id="notification" class="notification hidden"></section>
+
+    <!-- History -->
+    <section class="history-section">
+      <h2>Dernières mises</h2>
+      <ul id="historyList"></ul>
+    </section>
+
+    <!-- Rules -->
+    <section class="rules">
+      <h2>Règles du jeu</h2>
+      <ol>
+        <li>Entrez votre prénom et misez <strong>2€</strong>.</li>
+        <li>Votre mise alimente la <strong>cagnotte secrète</strong>.</li>
+        <li>Quand elle atteint <strong>10€</strong>, le dernier miseur remporte <strong>9€</strong> et <strong>1€</strong> est versé dans la cagnotte spéciale.</li>
+        <li>Quand la cagnotte spéciale atteint <strong>100€</strong>, le dernier miseur remporte le <strong>JACKPOT de 100€</strong> !</li>
+      </ol>
+    </section>
+
+  </div>
+
+  <!-- Win overlay -->
+  <div id="winOverlay" class="win-overlay hidden">
+    <div class="win-box">
+      <div class="win-emoji" id="winEmoji">🎉</div>
+      <div class="win-title" id="winTitle">Bravo !</div>
+      <div class="win-msg" id="winMsg"></div>
+      <button onclick="closeOverlay()">Continuer</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
