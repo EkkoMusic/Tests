@@ -1,18 +1,3 @@
-// ─── Storage ─────────────────────────────────────
-const STORAGE_KEY = 'cagnotte_data';
-
-function loadData() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch (_) {}
-  return { pot: 0, specialPot: 0, history: [] };
-}
-
-function saveData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
-
 // ─── DOM refs ─────────────────────────────────────
 const betForm       = document.getElementById('betForm');
 const playerName    = document.getElementById('playerName');
@@ -28,7 +13,7 @@ const winTitle      = document.getElementById('winTitle');
 const winMsg        = document.getElementById('winMsg');
 
 // ─── Helpers ──────────────────────────────────────
-function fmt(n) { return n.toFixed(2) + '€'; }
+function fmt(n) { return Number(n).toFixed(2) + '€'; }
 
 function updateBars(pot, specialPot) {
   potBar.style.width        = Math.min((pot / 10) * 100, 100) + '%';
@@ -80,53 +65,22 @@ function addHistoryEntry(player, potWin, specialWin, timestamp) {
   }
 }
 
-// ─── Bet logic (sans serveur) ──────────────────────
-function placeBet(name) {
-  const data = loadData();
-
-  data.pot += 2;
-
-  let potWin     = 0;
-  let specialWin = 0;
-
-  if (data.pot >= 10) {
-    potWin      = 9;
-    data.pot   -= 10;
-    data.specialPot += 1;
-
-    if (data.specialPot >= 100) {
-      specialWin       = 100;
-      data.specialPot -= 100;
-    }
+// ─── Load initial status ───────────────────────────
+async function loadStatus() {
+  try {
+    const res  = await fetch('/api/status');
+    const data = await res.json();
+    updateBars(data.pot, data.specialPot);
+    (data.history || []).slice().reverse().forEach(h => {
+      addHistoryEntry(h.player, h.potWin, h.specialWin, h.timestamp);
+    });
+  } catch (e) {
+    showNotif('Impossible de joindre le serveur.', true);
   }
-
-  const entry = {
-    timestamp:  new Date().toISOString(),
-    player:     name,
-    potWin,
-    specialWin,
-    potAfter:        data.pot,
-    specialPotAfter: data.specialPot
-  };
-  data.history.push(entry);
-  if (data.history.length > 100) data.history = data.history.slice(-100);
-
-  saveData(data);
-
-  return { pot: data.pot, specialPot: data.specialPot, potWin, specialWin };
 }
 
-// ─── Init ─────────────────────────────────────────
-function init() {
-  const data = loadData();
-  updateBars(data.pot, data.specialPot);
-  data.history.slice(-10).reverse().forEach(h => {
-    addHistoryEntry(h.player, h.potWin, h.specialWin, h.timestamp);
-  });
-}
-
-// ─── Form handler ─────────────────────────────────
-betForm.addEventListener('submit', (e) => {
+// ─── Bet handler ──────────────────────────────────
+betForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const name = playerName.value.trim();
@@ -137,20 +91,40 @@ betForm.addEventListener('submit', (e) => {
   }
 
   betBtn.disabled = true;
+  betBtn.querySelector('.btn-text').hidden   = true;
+  betBtn.querySelector('.btn-spinner').hidden = false;
 
-  const result = placeBet(name);
-  updateBars(result.pot, result.specialPot);
-  addHistoryEntry(name, result.potWin, result.specialWin, new Date().toISOString());
+  try {
+    const res  = await fetch('/api/bet', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ name })
+    });
+    const data = await res.json();
 
-  if (result.specialWin > 0) {
-    showWin('🏆', 'JACKPOT !!!', `Félicitations ${name} ! La cagnotte spéciale a atteint 100€, vous remportez 100€ !`);
-  } else if (result.potWin > 0) {
-    showWin('🎉', 'Vous avez gagné !', `Bravo ${name} ! La cagnotte a atteint 10€, vous remportez 9€ !`);
-  } else {
-    showNotif(`Mise de 2€ enregistrée. Cagnotte secrète : ${fmt(result.pot)}`);
+    if (!res.ok) {
+      showNotif(data.error || 'Une erreur est survenue.', true);
+      return;
+    }
+
+    updateBars(data.pot, data.specialPot);
+    addHistoryEntry(name, data.potWin, data.specialWin, new Date().toISOString());
+
+    if (data.specialWin > 0) {
+      showWin('🏆', 'JACKPOT !!!', `Félicitations ${name} ! La cagnotte spéciale a atteint 100€, vous remportez 100€ !`);
+    } else if (data.potWin > 0) {
+      showWin('🎉', 'Vous avez gagné !', `Bravo ${name} ! La cagnotte a atteint 10€, vous remportez 9€ !`);
+    } else {
+      showNotif(`Mise de 2€ enregistrée. Cagnotte secrète : ${fmt(data.pot)}`);
+    }
+
+  } catch (err) {
+    showNotif('Erreur réseau. Veuillez réessayer.', true);
+  } finally {
+    betBtn.disabled = false;
+    betBtn.querySelector('.btn-text').hidden   = false;
+    betBtn.querySelector('.btn-spinner').hidden = true;
   }
-
-  betBtn.disabled = false;
 });
 
-init();
+loadStatus();

@@ -1,106 +1,124 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
+const path    = require('path');
+const { MongoClient } = require('mongodb');
 
-const app = express();
-const PORT = 3000;
-const DATA_FILE = path.join(__dirname, 'data.json');
+const app  = express();
+const PORT = process.env.PORT || 3000;
+
+// MongoDB connection (set MONGODB_URI in environment variables)
+const MONGO_URI = process.env.MONGODB_URI;
+let db;
+
+async function connectDB() {
+  const client = new MongoClient(MONGO_URI);
+  await client.connect();
+  db = client.db('cagnotte');
+  console.log('Connecté à MongoDB Atlas');
+
+  // Initialize state document if it doesn't exist
+  const col = db.collection('gamestate');
+  await col.updateOne(
+    { _id: 'main' },
+    { $setOnInsert: { pot: 0, specialPot: 0, history: [] } },
+    { upsert: true }
+  );
+}
+
+async function getState() {
+  return db.collection('gamestate').findOne({ _id: 'main' });
+}
+
+async function setState(pot, specialPot, historyEntry) {
+  const col = db.collection('gamestate');
+  await col.updateOne(
+    { _id: 'main' },
+    {
+      $set:  { pot, specialPot },
+      $push: { history: { $each: [historyEntry], $slice: -100 } }
+    }
+  );
+}
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'docs')));
 
-function loadData() {
-  if (!fs.existsSync(DATA_FILE)) {
-    const initial = { pot: 0, specialPot: 0, history: [] };
-    fs.writeFileSync(DATA_FILE, JSON.stringify(initial, null, 2));
-    return initial;
-  }
-  return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-}
-
-function saveData(data) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-}
-
 // GET current state
-app.get('/api/status', (req, res) => {
-  const data = loadData();
-  res.json({
-    pot: data.pot,
-    specialPot: data.specialPot,
-    history: data.history.slice(-10)
-  });
+app.get('/api/status', async (req, res) => {
+  try {
+    const state = await getState();
+    res.json({
+      pot:        state.pot,
+      specialPot: state.specialPot,
+      history:    (state.history || []).slice(-10)
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
 });
 
 // POST place a bet of 2€
-app.post('/api/bet', (req, res) => {
+app.post('/api/bet', async (req, res) => {
   const { name } = req.body;
   if (!name || name.trim() === '') {
     return res.status(400).json({ error: 'Veuillez entrer votre prénom.' });
   }
 
-  const data = loadData();
-  const playerName = name.trim();
-  const events = [];
+  try {
+    const state      = await getState();
+    const playerName = name.trim();
 
-  // Add 2€ to the pot
-  data.pot += 2;
-  events.push({ type: 'bet', message: `${playerName} a misé 2€. Cagnotte : ${data.pot.toFixed(2)}€` });
+    let pot        = state.pot + 2;
+    let specialPot = state.specialPot;
+    let potWin     = 0;
+    let specialWin = 0;
 
-  let potWin = 0;
-  let specialWin = 0;
+    if (pot >= 10) {
+      potWin      = 9;
+      pot        -= 10;
+      specialPot += 1;
 
-  // Check if pot reaches 10€
-  if (data.pot >= 10) {
-    potWin = 9;
-    data.pot -= 10;
-    data.specialPot += 1;
-    events.push({
-      type: 'pot_win',
-      message: `La cagnotte a atteint 10€ ! ${playerName} remporte 9€ ! 1€ ajouté à la cagnotte spéciale.`
-    });
-
-    // Check if special pot reaches 100€
-    if (data.specialPot >= 100) {
-      specialWin = 100;
-      data.specialPot -= 100;
-      events.push({
-        type: 'special_win',
-        message: `JACKPOT ! La cagnotte spéciale a atteint 100€ ! ${playerName} remporte 100€ !!!`
-      });
+      if (specialPot >= 100) {
+        specialWin  = 100;
+        specialPot -= 100;
+      }
     }
+
+    const historyEntry = {
+      timestamp:  new Date().toISOString(),
+      player:     playerName,
+      potWin,
+      specialWin
+    };
+
+    await setState(pot, specialPot, historyEntry);
+
+    res.json({ pot, specialPot, potWin, specialWin });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
   }
+});
 
-  // Add to history
-  const historyEntry = {
-    timestamp: new Date().toISOString(),
-    player: playerName,
-    potWin,
-    specialWin,
-    potAfter: data.pot,
-    specialPotAfter: data.specialPot
-  };
-  data.history.push(historyEntry);
-  if (data.history.length > 100) data.history = data.history.slice(-100);
+// POST reset (admin)
+app.post('/api/reset', async (req, res) => {
+  try {
+    await db.collection('gamestate').updateOne(
+      { _id: 'main' },
+      { $set: { pot: 0, specialPot: 0, history: [] } }
+    );
+    res.json({ message: 'Remise à zéro effectuée.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
 
-  saveData(data);
-
-  res.json({
-    pot: data.pot,
-    specialPot: data.specialPot,
-    events,
-    potWin,
-    specialWin
+// Start server after DB connection
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => console.log(`Serveur démarré sur http://localhost:${PORT}`));
+  })
+  .catch(err => {
+    console.error('Impossible de se connecter à MongoDB :', err.message);
+    process.exit(1);
   });
-});
-
-// Reset (admin only - remove in production)
-app.post('/api/reset', (req, res) => {
-  const fresh = { pot: 0, specialPot: 0, history: [] };
-  saveData(fresh);
-  res.json({ message: 'Remise à zéro effectuée.', ...fresh });
-});
-
-app.listen(PORT, () => {
-  console.log(`Serveur démarré sur http://localhost:${PORT}`);
-});
