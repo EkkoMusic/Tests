@@ -1,106 +1,199 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
+const path    = require('path');
+const crypto  = require('crypto');
+const { MongoClient } = require('mongodb');
 
-const app = express();
+const app  = express();
 const PORT = process.env.PORT || 3000;
-const DATA_FILE = path.join(__dirname, 'data.json');
+
+const MONGO_URI = process.env.MONGODB_URI;
+let db;
+
+function hashPassword(password) {
+  return crypto.createHash('sha256').update(password + 'cagnotte_secret_salt').digest('hex');
+}
+
+function generateToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+async function connectDB() {
+  const client = new MongoClient(MONGO_URI);
+  await client.connect();
+  db = client.db('cagnotte');
+  console.log('Connecté à MongoDB Atlas');
+
+  const col = db.collection('gamestate');
+  await col.updateOne(
+    { _id: 'main' },
+    { $setOnInsert: { pot: 0, specialPot: 0, history: [] } },
+    { upsert: true }
+  );
+}
+
+async function getState() {
+  return db.collection('gamestate').findOne({ _id: 'main' });
+}
+
+async function setState(pot, specialPot, historyEntry) {
+  await db.collection('gamestate').updateOne(
+    { _id: 'main' },
+    {
+      $set:  { pot, specialPot },
+      $push: { history: { $each: [historyEntry], $slice: -100 } }
+    }
+  );
+}
+
+async function getUserByToken(token) {
+  if (!token) return null;
+  return db.collection('users').findOne({ token });
+}
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'docs')));
 
-function loadData() {
-  if (!fs.existsSync(DATA_FILE)) {
-    const initial = { pot: 0, specialPot: 0, history: [] };
-    fs.writeFileSync(DATA_FILE, JSON.stringify(initial, null, 2));
-    return initial;
+// ─── POST /api/register ────────────────────────────
+app.post('/api/register', async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password || username.trim() === '') {
+    return res.status(400).json({ error: 'Nom d\'utilisateur et mot de passe requis.' });
   }
-  return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-}
-
-function saveData(data) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-}
-
-// GET current state
-app.get('/api/status', (req, res) => {
-  const data = loadData();
-  res.json({
-    pot: data.pot,
-    specialPot: data.specialPot,
-    history: data.history.slice(-10)
-  });
-});
-
-// POST place a bet of 2€
-app.post('/api/bet', (req, res) => {
-  const { name } = req.body;
-  if (!name || name.trim() === '') {
-    return res.status(400).json({ error: 'Veuillez entrer votre prénom.' });
+  if (username.trim().length < 3) {
+    return res.status(400).json({ error: 'Nom d\'utilisateur trop court (min 3 caractères).' });
+  }
+  if (password.length < 4) {
+    return res.status(400).json({ error: 'Mot de passe trop court (min 4 caractères).' });
   }
 
-  const data = loadData();
-  const playerName = name.trim();
-  const events = [];
+  try {
+    const existing = await db.collection('users').findOne({ username: username.trim().toLowerCase() });
+    if (existing) {
+      return res.status(409).json({ error: 'Ce nom d\'utilisateur est déjà pris.' });
+    }
 
-  // Add 2€ to the pot
-  data.pot += 2;
-  events.push({ type: 'bet', message: `${playerName} a misé 2€. Cagnotte : ${data.pot.toFixed(2)}€` });
-
-  let potWin = 0;
-  let specialWin = 0;
-
-  // Check if pot reaches 10€
-  if (data.pot >= 10) {
-    potWin = 9;
-    data.pot -= 10;
-    data.specialPot += 1;
-    events.push({
-      type: 'pot_win',
-      message: `La cagnotte a atteint 10€ ! ${playerName} remporte 9€ ! 1€ ajouté à la cagnotte spéciale.`
+    const token = generateToken();
+    await db.collection('users').insertOne({
+      username:    username.trim().toLowerCase(),
+      displayName: username.trim(),
+      password:    hashPassword(password),
+      balance:     20,
+      token,
+      createdAt:   new Date().toISOString()
     });
 
-    // Check if special pot reaches 100€
-    if (data.specialPot >= 100) {
-      specialWin = 100;
-      data.specialPot -= 100;
-      events.push({
-        type: 'special_win',
-        message: `JACKPOT ! La cagnotte spéciale a atteint 100€ ! ${playerName} remporte 100€ !!!`
-      });
-    }
+    res.json({ token, username: username.trim(), balance: 20 });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
+
+// ─── POST /api/login ───────────────────────────────
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Nom d\'utilisateur et mot de passe requis.' });
   }
 
-  // Add to history
-  const historyEntry = {
-    timestamp: new Date().toISOString(),
-    player: playerName,
-    potWin,
-    specialWin,
-    potAfter: data.pot,
-    specialPotAfter: data.specialPot
-  };
-  data.history.push(historyEntry);
-  if (data.history.length > 100) data.history = data.history.slice(-100);
+  try {
+    const user = await db.collection('users').findOne({ username: username.trim().toLowerCase() });
+    if (!user || user.password !== hashPassword(password)) {
+      return res.status(401).json({ error: 'Identifiants incorrects.' });
+    }
 
-  saveData(data);
+    const token = generateToken();
+    await db.collection('users').updateOne({ _id: user._id }, { $set: { token } });
 
-  res.json({
-    pot: data.pot,
-    specialPot: data.specialPot,
-    events,
-    potWin,
-    specialWin
+    res.json({ token, username: user.displayName, balance: user.balance });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
+
+// ─── GET /api/me ───────────────────────────────────
+app.get('/api/me', async (req, res) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  const user  = await getUserByToken(token);
+  if (!user) return res.status(401).json({ error: 'Non authentifié.' });
+  res.json({ username: user.displayName, balance: user.balance });
+});
+
+// ─── GET /api/status (historique uniquement) ───────
+app.get('/api/status', async (req, res) => {
+  try {
+    const state = await getState();
+    res.json({ history: (state.history || []).slice(-10) });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
+
+// ─── POST /api/bet ─────────────────────────────────
+app.post('/api/bet', async (req, res) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  const user  = await getUserByToken(token);
+  if (!user) return res.status(401).json({ error: 'Veuillez vous connecter pour miser.' });
+
+  if (user.balance < 2) {
+    return res.status(400).json({ error: 'Solde insuffisant pour miser 2€.' });
+  }
+
+  try {
+    const state = await getState();
+    let pot        = state.pot + 2;
+    let specialPot = state.specialPot;
+    let potWin     = 0;
+    let specialWin = 0;
+
+    if (pot >= 10) {
+      potWin      = 9;
+      pot        -= 10;
+      specialPot += 1;
+
+      if (specialPot >= 100) {
+        specialWin  = 100;
+        specialPot -= 100;
+      }
+    }
+
+    await setState(pot, specialPot, {
+      timestamp:  new Date().toISOString(),
+      player:     user.displayName,
+      potWin,
+      specialWin
+    });
+
+    const newBalance = Math.round((user.balance - 2 + potWin + specialWin) * 100) / 100;
+    await db.collection('users').updateOne({ _id: user._id }, { $set: { balance: newBalance } });
+
+    res.json({ potWin, specialWin, balance: newBalance });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
+
+// ─── POST /api/reset (admin) ───────────────────────
+app.post('/api/reset', async (req, res) => {
+  try {
+    await db.collection('gamestate').updateOne(
+      { _id: 'main' },
+      { $set: { pot: 0, specialPot: 0, history: [] } }
+    );
+    res.json({ message: 'Remise à zéro effectuée.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
+
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => console.log(`Serveur démarré sur http://localhost:${PORT}`));
+  })
+  .catch(err => {
+    console.error('Impossible de se connecter à MongoDB :', err.message);
+    process.exit(1);
   });
-});
-
-// Reset (admin only - remove in production)
-app.post('/api/reset', (req, res) => {
-  const fresh = { pot: 0, specialPot: 0, history: [] };
-  saveData(fresh);
-  res.json({ message: 'Remise à zéro effectuée.', ...fresh });
-});
-
-app.listen(PORT, () => {
-  console.log(`Serveur démarré sur http://localhost:${PORT}`);
-});

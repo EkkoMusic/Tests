@@ -11,75 +11,81 @@
   <div class="container">
 
     <header>
-      <h1>🎰 La Cagnotte Secrète</h1>
+      <h1>La Cagnotte Secrète</h1>
       <p class="subtitle">Misez 2€ et tentez votre chance !</p>
     </header>
 
-    <!-- Pots display -->
-    <section class="pots">
-
-      <div class="pot-card secret">
-        <div class="pot-icon">🔒</div>
-        <div class="pot-label">Cagnotte Secrète</div>
-        <div class="pot-bar-wrap">
-          <div class="pot-bar" id="potBar"></div>
-        </div>
-        <div class="pot-hint">Atteignez 10€ pour déclencher un gain !</div>
+    <!-- Auth section (visible quand non connecté) -->
+    <div id="authSection" class="auth-section">
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin">Connexion</button>
+        <button class="auth-tab" id="tabRegister">Inscription</button>
       </div>
 
-      <div class="pot-card special">
-        <div class="pot-icon">⭐</div>
-        <div class="pot-label">Cagnotte Spéciale</div>
-        <div class="pot-amount" id="specialPotAmount">0.00€</div>
-        <div class="pot-bar-wrap">
-          <div class="pot-bar special-bar" id="specialPotBar"></div>
-        </div>
-        <div class="pot-hint">Atteignez 100€ pour le JACKPOT !</div>
-      </div>
-
-    </section>
-
-    <!-- Bet form -->
-    <section class="bet-section">
-      <form id="betForm">
-        <input
-          type="text"
-          id="playerName"
-          placeholder="Votre prénom"
-          maxlength="30"
-          autocomplete="off"
-          required
-        />
-        <button type="submit" id="betBtn">
-          <span class="btn-text">Miser 2€</span>
-          <span class="btn-spinner" hidden>⏳</span>
-        </button>
+      <form id="loginForm" class="auth-form">
+        <input type="text" id="loginUsername" placeholder="Nom d'utilisateur" maxlength="30" autocomplete="username" required />
+        <input type="password" id="loginPassword" placeholder="Mot de passe" maxlength="100" autocomplete="current-password" required />
+        <button type="submit">Se connecter</button>
       </form>
-    </section>
 
-    <!-- Notification area -->
-    <section id="notification" class="notification hidden"></section>
+      <form id="registerForm" class="auth-form hidden">
+        <input type="text" id="regUsername" placeholder="Choisir un nom d'utilisateur" maxlength="30" autocomplete="username" required />
+        <input type="password" id="regPassword" placeholder="Choisir un mot de passe" maxlength="100" autocomplete="new-password" required />
+        <button type="submit">Créer mon compte</button>
+        <p class="auth-bonus">🎁 20€ offerts à l'inscription !</p>
+      </form>
 
-    <!-- History -->
-    <section class="history-section">
-      <h2>Dernières mises</h2>
-      <ul id="historyList"></ul>
-    </section>
+      <div id="authNotif" class="notification hidden"></div>
+    </div>
 
-    <!-- Rules -->
-    <section class="rules">
-      <h2>Règles du jeu</h2>
-      <ol>
-        <li>Entrez votre prénom et misez <strong>2€</strong>.</li>
-        <li>Votre mise alimente la <strong>cagnotte secrète</strong>.</li>
-        <li>Quand elle atteint <strong>10€</strong>, le dernier miseur remporte <strong>9€</strong> et <strong>1€</strong> est versé dans la cagnotte spéciale.</li>
-        <li>Quand la cagnotte spéciale atteint <strong>100€</strong>, le dernier miseur remporte le <strong>JACKPOT de 100€</strong> !</li>
-      </ol>
-    </section>
+    <!-- Section de jeu (visible quand connecté) -->
+    <div id="gameSection" class="hidden">
+
+      <!-- Barre utilisateur -->
+      <div class="user-bar">
+        <span>Bonjour, <strong id="userName"></strong></span>
+        <div class="balance-chip">
+          <span>Solde&nbsp;</span><strong id="userBalance">0.00€</strong>
+        </div>
+        <button id="logoutBtn">Déconnexion</button>
+      </div>
+
+      <!-- Formulaire de mise -->
+      <section class="bet-section">
+        <h2>Tentez votre chance !</h2>
+        <form id="betForm">
+          <button type="submit" id="betBtn">
+            <span class="btn-text">Miser 2€</span>
+            <span class="btn-spinner" hidden>⏳</span>
+          </button>
+        </form>
+      </section>
+
+      <!-- Notifications -->
+      <section id="notification" class="notification hidden"></section>
+
+      <!-- Historique -->
+      <section class="history-section">
+        <h2>Dernières mises</h2>
+        <ul id="historyList"></ul>
+      </section>
+
+      <!-- Règles -->
+      <section class="rules">
+        <h2>Règles du jeu</h2>
+        <ol>
+          <li>Misez <strong>2€</strong> depuis votre compte.</li>
+          <li>Votre mise alimente la <strong>cagnotte secrète</strong>.</li>
+          <li>Quand elle atteint son objectif, le dernier miseur remporte <strong>9€</strong> crédités sur son compte.</li>
+          <li>Une partie alimente la <strong>cagnotte spéciale</strong> : quand elle atteint son objectif, le dernier miseur remporte le <strong>JACKPOT de 100€</strong> !</li>
+        </ol>
+      </section>
+
+    </div>
 
   </div>
 
-  <!-- Win overlay -->
+  <!-- Overlay de gain -->
   <div id="winOverlay" class="win-overlay hidden">
     <div class="win-box">
       <div class="win-emoji" id="winEmoji">🎉</div>
