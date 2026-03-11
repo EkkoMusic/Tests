@@ -75,7 +75,7 @@ function addHistoryEntry(player, potWin, specialWin, timestamp) {
   `;
   historyList.prepend(li);
 
-  while (historyList.children.length > 10) {
+  while (historyList.children.length > 5) {
     historyList.removeChild(historyList.lastChild);
   }
 }

@@ -11,8 +11,10 @@
   <div class="container">
 
     <header>
-      <h1>La Cagnotte Secrète</h1>
-      <p class="subtitle">Misez 2€ et tentez votre chance !</p>
+      <span class="header-deco left">✦</span>
+      <span class="header-deco right">✦</span>
+      <h1>🎰 La Cagnotte Secrète</h1>
+      <p class="subtitle">✨ Misez 2€ et tentez votre chance !</p>
     </header>
 
     <!-- Auth section (visible quand non connecté) -->
@@ -25,13 +27,13 @@
       <form id="loginForm" class="auth-form">
         <input type="text" id="loginUsername" placeholder="Nom d'utilisateur" maxlength="30" autocomplete="username" required />
         <input type="password" id="loginPassword" placeholder="Mot de passe" maxlength="100" autocomplete="current-password" required />
-        <button type="submit">Se connecter</button>
+        <button type="submit">Se connecter →</button>
       </form>
 
       <form id="registerForm" class="auth-form hidden">
         <input type="text" id="regUsername" placeholder="Choisir un nom d'utilisateur" maxlength="30" autocomplete="username" required />
         <input type="password" id="regPassword" placeholder="Choisir un mot de passe" maxlength="100" autocomplete="new-password" required />
-        <button type="submit">Créer mon compte</button>
+        <button type="submit">Créer mon compte →</button>
         <p class="auth-bonus">🎁 20€ offerts à l'inscription !</p>
       </form>
 
@@ -43,11 +45,9 @@
 
       <!-- Barre utilisateur -->
       <div class="user-bar">
-        <span>Bonjour, <strong id="userName"></strong></span>
-        <div class="balance-chip">
-          <span>Solde&nbsp;</span><strong id="userBalance">0.00€</strong>
-        </div>
-        <button id="logoutBtn">Déconnexion</button>
+        <span>👋 Bonjour, <strong id="userName"></strong></span>
+        <div class="balance-chip">💰 <strong id="userBalance">0.00€</strong></div>
+        <button id="logoutBtn">Déco →</button>
       </div>
 
       <!-- Formulaire de mise -->
@@ -55,7 +55,7 @@
         <h2>Tentez votre chance !</h2>
         <form id="betForm">
           <button type="submit" id="betBtn">
-            <span class="btn-text">Miser 2€</span>
+            <span class="btn-text">Miser 2€ 🎲</span>
             <span class="btn-spinner" hidden>⏳</span>
           </button>
         </form>
@@ -66,13 +66,13 @@
 
       <!-- Historique -->
       <section class="history-section">
-        <h2>Dernières mises</h2>
+        <div class="section-badge">⚡ Dernières mises</div>
         <ul id="historyList"></ul>
       </section>
 
       <!-- Règles -->
       <section class="rules">
-        <h2>Règles du jeu</h2>
+        <div class="section-badge">📜 Règles du jeu</div>
         <ol>
           <li>Misez <strong>2€</strong> depuis votre compte.</li>
           <li>Votre mise alimente la <strong>cagnotte secrète</strong>.</li>
@@ -85,13 +85,29 @@
 
   </div>
 
+  <!-- Ticker bas de page -->
+  <div class="ticker-wrap">
+    <div class="ticker-inner">
+      <span>✦ LA CAGNOTTE SECRÈTE</span><span class="dot">●</span>
+      <span>MISEZ 2€</span><span class="dot">●</span>
+      <span>JACKPOT 100€</span><span class="dot">●</span>
+      <span>TENTEZ VOTRE CHANCE</span><span class="dot">●</span>
+      <span>GAGNEZ DES EUROS</span><span class="dot">●</span>
+      <span>✦ LA CAGNOTTE SECRÈTE</span><span class="dot">●</span>
+      <span>MISEZ 2€</span><span class="dot">●</span>
+      <span>JACKPOT 100€</span><span class="dot">●</span>
+      <span>TENTEZ VOTRE CHANCE</span><span class="dot">●</span>
+      <span>GAGNEZ DES EUROS</span><span class="dot">●</span>
+    </div>
+  </div>
+
   <!-- Overlay de gain -->
   <div id="winOverlay" class="win-overlay hidden">
     <div class="win-box">
       <div class="win-emoji" id="winEmoji">🎉</div>
       <div class="win-title" id="winTitle">Bravo !</div>
       <div class="win-msg" id="winMsg"></div>
-      <button onclick="closeOverlay()">Continuer</button>
+      <button onclick="closeOverlay()">Continuer →</button>
     </div>
   </div>
 
