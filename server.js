@@ -1,13 +1,21 @@
 const express = require('express');
 const path    = require('path');
+const crypto  = require('crypto');
 const { MongoClient } = require('mongodb');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
-// MongoDB connection (set MONGODB_URI in environment variables)
 const MONGO_URI = process.env.MONGODB_URI;
 let db;
+
+function hashPassword(password) {
+  return crypto.createHash('sha256').update(password + 'cagnotte_secret_salt').digest('hex');
+}
+
+function generateToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
 
 async function connectDB() {
   const client = new MongoClient(MONGO_URI);
@@ -15,7 +23,6 @@ async function connectDB() {
   db = client.db('cagnotte');
   console.log('Connecté à MongoDB Atlas');
 
-  // Initialize state document if it doesn't exist
   const col = db.collection('gamestate');
   await col.updateOne(
     { _id: 'main' },
@@ -29,8 +36,7 @@ async function getState() {
 }
 
 async function setState(pot, specialPot, historyEntry) {
-  const col = db.collection('gamestate');
-  await col.updateOne(
+  await db.collection('gamestate').updateOne(
     { _id: 'main' },
     {
       $set:  { pot, specialPot },
@@ -39,35 +45,104 @@ async function setState(pot, specialPot, historyEntry) {
   );
 }
 
+async function getUserByToken(token) {
+  if (!token) return null;
+  return db.collection('users').findOne({ token });
+}
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'docs')));
 
-// GET current state
-app.get('/api/status', async (req, res) => {
+// ─── POST /api/register ────────────────────────────
+app.post('/api/register', async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password || username.trim() === '') {
+    return res.status(400).json({ error: 'Nom d\'utilisateur et mot de passe requis.' });
+  }
+  if (username.trim().length < 3) {
+    return res.status(400).json({ error: 'Nom d\'utilisateur trop court (min 3 caractères).' });
+  }
+  if (password.length < 4) {
+    return res.status(400).json({ error: 'Mot de passe trop court (min 4 caractères).' });
+  }
+
   try {
-    const state = await getState();
-    res.json({
-      pot:        state.pot,
-      specialPot: state.specialPot,
-      history:    (state.history || []).slice(-10)
+    const existing = await db.collection('users').findOne({ username: username.trim().toLowerCase() });
+    if (existing) {
+      return res.status(409).json({ error: 'Ce nom d\'utilisateur est déjà pris.' });
+    }
+
+    const token = generateToken();
+    await db.collection('users').insertOne({
+      username:    username.trim().toLowerCase(),
+      displayName: username.trim(),
+      password:    hashPassword(password),
+      balance:     20,
+      token,
+      createdAt:   new Date().toISOString()
     });
+
+    res.json({ token, username: username.trim(), balance: 20 });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Erreur serveur.' });
   }
 });
 
-// POST place a bet of 2€
-app.post('/api/bet', async (req, res) => {
-  const { name } = req.body;
-  if (!name || name.trim() === '') {
-    return res.status(400).json({ error: 'Veuillez entrer votre prénom.' });
+// ─── POST /api/login ───────────────────────────────
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Nom d\'utilisateur et mot de passe requis.' });
   }
 
   try {
-    const state      = await getState();
-    const playerName = name.trim();
+    const user = await db.collection('users').findOne({ username: username.trim().toLowerCase() });
+    if (!user || user.password !== hashPassword(password)) {
+      return res.status(401).json({ error: 'Identifiants incorrects.' });
+    }
 
+    const token = generateToken();
+    await db.collection('users').updateOne({ _id: user._id }, { $set: { token } });
+
+    res.json({ token, username: user.displayName, balance: user.balance });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
+
+// ─── GET /api/me ───────────────────────────────────
+app.get('/api/me', async (req, res) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  const user  = await getUserByToken(token);
+  if (!user) return res.status(401).json({ error: 'Non authentifié.' });
+  res.json({ username: user.displayName, balance: user.balance });
+});
+
+// ─── GET /api/status (historique uniquement) ───────
+app.get('/api/status', async (req, res) => {
+  try {
+    const state = await getState();
+    res.json({ history: (state.history || []).slice(-10) });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
+
+// ─── POST /api/bet ─────────────────────────────────
+app.post('/api/bet', async (req, res) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  const user  = await getUserByToken(token);
+  if (!user) return res.status(401).json({ error: 'Veuillez vous connecter pour miser.' });
+
+  if (user.balance < 2) {
+    return res.status(400).json({ error: 'Solde insuffisant pour miser 2€.' });
+  }
+
+  try {
+    const state = await getState();
     let pot        = state.pot + 2;
     let specialPot = state.specialPot;
     let potWin     = 0;
@@ -84,23 +159,24 @@ app.post('/api/bet', async (req, res) => {
       }
     }
 
-    const historyEntry = {
+    await setState(pot, specialPot, {
       timestamp:  new Date().toISOString(),
-      player:     playerName,
+      player:     user.displayName,
       potWin,
       specialWin
-    };
+    });
 
-    await setState(pot, specialPot, historyEntry);
+    const newBalance = Math.round((user.balance - 2 + potWin + specialWin) * 100) / 100;
+    await db.collection('users').updateOne({ _id: user._id }, { $set: { balance: newBalance } });
 
-    res.json({ pot, specialPot, potWin, specialWin });
+    res.json({ potWin, specialWin, balance: newBalance });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Erreur serveur.' });
   }
 });
 
-// POST reset (admin)
+// ─── POST /api/reset (admin) ───────────────────────
 app.post('/api/reset', async (req, res) => {
   try {
     await db.collection('gamestate').updateOne(
@@ -113,7 +189,6 @@ app.post('/api/reset', async (req, res) => {
   }
 });
 
-// Start server after DB connection
 connectDB()
   .then(() => {
     app.listen(PORT, () => console.log(`Serveur démarré sur http://localhost:${PORT}`));
