@@ -1,0 +1,13 @@
+{
+  "name": "cagnotte-secrete",
+  "version": "1.0.0",
+  "description": "Site de cagnotte secrète - misez 2€ et tentez votre chance",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
