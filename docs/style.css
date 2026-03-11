@@ -29,8 +29,13 @@ body {
   background-size: 22px 22px;
   font-family: var(--font-body);
   color: var(--ink);
-  padding: 28px 16px 72px;
+  padding: 0 0 72px;
   min-height: 100vh;
+}
+
+/* ─── Page body wrapper (below hero) ────────── */
+.page-body {
+  padding: 28px 16px 0;
 }
 
 /* ─── Container ──────────────────────────────── */
@@ -471,3 +476,297 @@ header .subtitle {
 
 /* ─── Utilities ──────────────────────────────── */
 .hidden { display: none !important; }
+
+/* ═══════════════════════════════════════════════
+   HERO SECTION
+═══════════════════════════════════════════════ */
+
+/* Caché sur mobile, visible ≥ 680px */
+.hero-outer { display: none; }
+
+@media (min-width: 680px) {
+  .hero-outer   { display: block; }
+  .container > header { display: none; } /* doublon masqué sur desktop */
+}
+
+.hero-outer {
+  padding: 24px 16px 0;
+}
+
+.hero-box {
+  max-width: 860px;
+  margin: 0 auto;
+  border: var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  background: #F5F4F0;
+  box-shadow: var(--shadow);
+}
+
+/* ── Navigation ───────────────────────────────── */
+.h-nav {
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  height: 52px;
+  border-bottom: var(--border);
+  background: #ffffff;
+  gap: 16px;
+}
+
+.h-logo {
+  font-family: var(--font-head);
+  font-size: 1.3rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  letter-spacing: -0.5px;
+}
+
+.h-navlinks {
+  display: flex;
+  gap: 18px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  flex: 1;
+  color: var(--ink);
+}
+.h-navlinks span {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.h-navlinks span:hover { text-decoration: underline; }
+.h-arr { font-size: 0.6rem; color: var(--muted); }
+
+.h-badge-nav {
+  background: var(--purple);
+  color: #fff;
+  font-size: 0.58rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 999px;
+  border: 1.5px solid var(--ink);
+}
+
+.h-navright {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.h-btn-icon {
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 2px 4px;
+  opacity: 0.8;
+}
+.h-btn-icon:hover { opacity: 1; }
+
+.h-btn-talk {
+  background: #D8CAFF;
+  border: var(--border);
+  border-radius: 7px;
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  font-weight: 900;
+  padding: 6px 14px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 #111;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.h-btn-talk:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 #111; }
+
+/* ── Corps splitté ────────────────────────────── */
+.h-body {
+  position: relative;
+  height: 448px;
+  overflow: hidden;
+}
+.h-bg-l {
+  position: absolute;
+  inset: 0 50% 0 0;
+  background: #F5F4F0;
+}
+.h-bg-r {
+  position: absolute;
+  inset: 0 0 0 50%;
+  background: var(--pink);
+}
+
+/* ── Mega-titre ───────────────────────────────── */
+.h-title {
+  position: absolute;
+  top: 118px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-head);
+  font-size: clamp(4rem, 10.5vw, 8.5rem);
+  font-weight: 700;
+  letter-spacing: -3px;
+  color: var(--ink);
+  white-space: nowrap;
+  z-index: 10;
+  line-height: 1;
+  user-select: none;
+}
+.h-title-bang {
+  color: var(--yellow);
+  -webkit-text-stroke: 2px var(--ink);
+}
+
+/* ── Contenu gauche ───────────────────────────── */
+.h-left {
+  position: absolute;
+  top: 255px;
+  left: 22px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.h-cta {
+  background: var(--yellow);
+  border: var(--border);
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 900;
+  padding: 9px 16px;
+  cursor: pointer;
+  box-shadow: var(--shadow-s);
+  transition: transform 0.1s, box-shadow 0.1s;
+  width: fit-content;
+}
+.h-cta:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 #111; }
+
+.h-arrows { display: flex; gap: 6px; }
+
+.h-circ {
+  width: 30px;
+  height: 30px;
+  border: var(--border);
+  border-radius: 50%;
+  background: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 2px 0 #111;
+  transition: transform 0.1s;
+  line-height: 1;
+}
+.h-circ:hover { transform: translate(-1px, -1px); }
+
+.h-stats-card {
+  background: #fff;
+  border: var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  box-shadow: 2px 2px 0 #111;
+  width: 138px;
+}
+.h-stat {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 4px;
+}
+.h-stat:last-child { border-bottom: none; padding-bottom: 0; }
+.h-stat b    { font-size: 0.92rem; font-weight: 900; }
+.h-stat span { font-size: 0.64rem; color: var(--muted); font-weight: 600; }
+
+/* ── Personnages ──────────────────────────────── */
+.h-char {
+  position: absolute;
+  bottom: 0;
+  z-index: 20;
+}
+.h-char-1 { left: 154px; }
+.h-char-2 { right: 44px;  }
+
+/* ── Carte flottante ──────────────────────────── */
+.h-float-card {
+  position: absolute;
+  top: 178px;
+  left: calc(50% + 38px);
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.h-swirl {
+  margin-bottom: -6px;
+  align-self: flex-start;
+  margin-left: 10px;
+  transform: rotate(-8deg);
+}
+.h-float-inner {
+  background: var(--purple);
+  border: var(--border);
+  border-radius: 9px;
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: var(--shadow-s);
+}
+.h-float-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #DCC8FF;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.h-float-val {
+  font-family: var(--font-head);
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.1;
+}
+
+/* ── Icônes sociales ──────────────────────────── */
+.h-socials {
+  position: absolute;
+  bottom: 12px;
+  right: 16px;
+  z-index: 10;
+  display: flex;
+  gap: 6px;
+}
+.h-soc-icon {
+  width: 26px;
+  height: 26px;
+  background: #fff;
+  border: var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 #111;
+}
+
+/* ── Copyright ────────────────────────────────── */
+.h-copy {
+  position: absolute;
+  bottom: 10px;
+  left: 14px;
+  font-size: 0.6rem;
+  color: var(--muted);
+  font-weight: 600;
+  z-index: 10;
+}
