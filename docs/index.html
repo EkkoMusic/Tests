@@ -8,82 +8,229 @@
 </head>
 <body>
 
-  <div class="container">
+  <!-- ═══════════════════════════════════════
+       HERO SECTION (desktop uniquement)
+  ════════════════════════════════════════ -->
+  <section class="hero-outer">
+    <div class="hero-box">
 
-    <header>
-      <span class="header-deco left">✦</span>
-      <span class="header-deco right">✦</span>
-      <h1>🎰 La Cagnotte Secrète</h1>
-      <p class="subtitle">✨ Misez 2€ et tentez votre chance !</p>
-    </header>
+      <!-- Navigation -->
+      <nav class="h-nav">
+        <span class="h-logo">CSJ</span>
+        <div class="h-navlinks">
+          <span>Règles <span class="h-arr">▾</span></span>
+          <span>Jackpot <span class="h-badge-nav">New</span></span>
+          <span>Gains</span>
+          <span>Contact</span>
+        </div>
+        <div class="h-navright">
+          <button class="h-btn-icon" aria-label="Notifications">🔔</button>
+          <button class="h-btn-icon" aria-label="Profil">🎯</button>
+          <button class="h-btn-icon" aria-label="Paramètres">⚙️</button>
+          <button class="h-btn-talk" onclick="document.getElementById('appSection').scrollIntoView({behavior:'smooth'})">Jouer →</button>
+        </div>
+      </nav>
 
-    <!-- Auth section (visible quand non connecté) -->
-    <div id="authSection" class="auth-section">
-      <div class="auth-tabs">
-        <button class="auth-tab active" id="tabLogin">Connexion</button>
-        <button class="auth-tab" id="tabRegister">Inscription</button>
-      </div>
+      <!-- Corps du hero (split gauche/droite) -->
+      <div class="h-body">
+        <div class="h-bg-l"></div>
+        <div class="h-bg-r"></div>
 
-      <form id="loginForm" class="auth-form">
-        <input type="text" id="loginUsername" placeholder="Nom d'utilisateur" maxlength="30" autocomplete="username" required />
-        <input type="password" id="loginPassword" placeholder="Mot de passe" maxlength="100" autocomplete="current-password" required />
-        <button type="submit">Se connecter →</button>
-      </form>
+        <!-- Mega-titre qui chevauche les deux fonds -->
+        <h2 class="h-title">JACKPOT<span class="h-title-bang">!</span></h2>
 
-      <form id="registerForm" class="auth-form hidden">
-        <input type="text" id="regUsername" placeholder="Choisir un nom d'utilisateur" maxlength="30" autocomplete="username" required />
-        <input type="password" id="regPassword" placeholder="Choisir un mot de passe" maxlength="100" autocomplete="new-password" required />
-        <button type="submit">Créer mon compte →</button>
-        <p class="auth-bonus">🎁 20€ offerts à l'inscription !</p>
-      </form>
-
-      <div id="authNotif" class="notification hidden"></div>
-    </div>
-
-    <!-- Section de jeu (visible quand connecté) -->
-    <div id="gameSection" class="hidden">
-
-      <!-- Barre utilisateur -->
-      <div class="user-bar">
-        <span>👋 Bonjour, <strong id="userName"></strong></span>
-        <div class="balance-chip">💰 <strong id="userBalance">0.00€</strong></div>
-        <button id="logoutBtn">Déco →</button>
-      </div>
-
-      <!-- Formulaire de mise -->
-      <section class="bet-section">
-        <h2>Tentez votre chance !</h2>
-        <form id="betForm">
-          <button type="submit" id="betBtn">
-            <span class="btn-text">Miser 2€ 🎲</span>
-            <span class="btn-spinner" hidden>⏳</span>
+        <!-- Contenu gauche : CTA + flèches + stats -->
+        <div class="h-left">
+          <button class="h-cta" onclick="document.getElementById('appSection').scrollIntoView({behavior:'smooth'})">
+            Tenter ma chance ➜
           </button>
+          <div class="h-arrows">
+            <button class="h-circ" aria-label="Précédent">‹</button>
+            <button class="h-circ" aria-label="Suivant">›</button>
+          </div>
+          <div class="h-stats-card">
+            <div class="h-stat"><b>84 900</b><span>mises jouées</span></div>
+            <div class="h-stat"><b>3 200€</b><span>jackpots remportés</span></div>
+            <div class="h-stat"><b>21 394</b><span>joueurs inscrits</span></div>
+          </div>
+        </div>
+
+        <!-- ─── PERSO 1 : Blob rose (à remplacer par dessin réel) ─── -->
+        <div class="h-char h-char-1">
+          <svg viewBox="0 0 160 228" width="128" height="182" xmlns="http://www.w3.org/2000/svg" aria-label="Personnage 1 – placeholder">
+            <!-- Label placeholder -->
+            <rect x="18" y="4" width="124" height="22" rx="5" fill="#FFE234" stroke="#111" stroke-width="2"/>
+            <text x="80" y="20" text-anchor="middle" font-size="10" font-weight="800" fill="#111" font-family="Arial,sans-serif">PERSO 1</text>
+            <!-- Gants -->
+            <circle cx="16"  cy="132" r="18" fill="#FF85C2" stroke="#111" stroke-width="2.5"/>
+            <circle cx="144" cy="132" r="18" fill="#FF85C2" stroke="#111" stroke-width="2.5"/>
+            <!-- Corps blob -->
+            <ellipse cx="80" cy="115" rx="58" ry="64" fill="#FF85C2" stroke="#111" stroke-width="3"/>
+            <!-- Yeux -->
+            <circle cx="62" cy="95"  r="12" fill="white" stroke="#111" stroke-width="2.5"/>
+            <circle cx="98" cy="95"  r="12" fill="white" stroke="#111" stroke-width="2.5"/>
+            <circle cx="64" cy="98"  r="6"  fill="#111"/>
+            <circle cx="100" cy="98" r="6"  fill="#111"/>
+            <circle cx="67" cy="95"  r="2.5" fill="white"/>
+            <circle cx="103" cy="95" r="2.5" fill="white"/>
+            <!-- Sourire -->
+            <path d="M 62 114 Q 80 130 98 114" stroke="#111" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <!-- Écharpe pointillée -->
+            <path d="M 30 142 Q 80 159 130 142" stroke="#fff" stroke-width="11" fill="none" stroke-dasharray="3 6" stroke-linecap="round" opacity="0.65"/>
+            <!-- Jambes -->
+            <rect x="55" y="171" width="20" height="40" rx="10" fill="#FF85C2" stroke="#111" stroke-width="2.5"/>
+            <rect x="85" y="171" width="20" height="40" rx="10" fill="#FF85C2" stroke="#111" stroke-width="2.5"/>
+            <!-- Sneakers -->
+            <rect x="40" y="202" width="38" height="17" rx="7" fill="#FFE234" stroke="#111" stroke-width="2"/>
+            <rect x="82" y="202" width="38" height="17" rx="7" fill="#3A8BFF" stroke="#111" stroke-width="2"/>
+          </svg>
+        </div>
+
+        <!-- ─── PERSO 2 : Cup turquoise (à remplacer par dessin réel) ─── -->
+        <div class="h-char h-char-2">
+          <svg viewBox="0 0 160 228" width="128" height="182" xmlns="http://www.w3.org/2000/svg" aria-label="Personnage 2 – placeholder">
+            <!-- Label placeholder -->
+            <rect x="18" y="4" width="124" height="22" rx="5" fill="#4DCFCF" stroke="#111" stroke-width="2"/>
+            <text x="80" y="20" text-anchor="middle" font-size="10" font-weight="800" fill="#111" font-family="Arial,sans-serif">PERSO 2</text>
+            <!-- Baguettes -->
+            <line x1="67" y1="40" x2="71" y2="80" stroke="#8B6A3E" stroke-width="4" stroke-linecap="round"/>
+            <line x1="93" y1="40" x2="89" y2="80" stroke="#8B6A3E" stroke-width="4" stroke-linecap="round"/>
+            <!-- Nouilles -->
+            <path d="M 40 74 Q 55 56 70 74 Q 85 92 100 74 Q 115 56 130 74" stroke="#FF8C42" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <path d="M 46 62 Q 61 46 76 62 Q 91 78 106 62" stroke="#FFA040" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <!-- Bord haut du cup -->
+            <ellipse cx="80" cy="82" rx="47" ry="14" fill="#5DDFDF" stroke="#111" stroke-width="3"/>
+            <!-- Gants -->
+            <circle cx="12"  cy="142" r="17" fill="#4DCFCF" stroke="#111" stroke-width="2.5"/>
+            <circle cx="148" cy="142" r="17" fill="#4DCFCF" stroke="#111" stroke-width="2.5"/>
+            <!-- Corps du cup -->
+            <path d="M 33 82 L 25 186 H 135 L 127 82 Z" fill="#4DCFCF" stroke="#111" stroke-width="3"/>
+            <line x1="33" y1="110" x2="127" y2="110" stroke="#111" stroke-width="1.5" opacity="0.2"/>
+            <!-- Yeux sur le cup -->
+            <circle cx="62"  cy="135" r="11" fill="white" stroke="#111" stroke-width="2.5"/>
+            <circle cx="98"  cy="135" r="11" fill="white" stroke="#111" stroke-width="2.5"/>
+            <circle cx="64"  cy="138" r="5.5" fill="#111"/>
+            <circle cx="100" cy="138" r="5.5" fill="#111"/>
+            <circle cx="67"  cy="135" r="2"   fill="white"/>
+            <circle cx="103" cy="135" r="2"   fill="white"/>
+            <!-- Sourire -->
+            <path d="M 60 154 Q 80 168 100 154" stroke="#111" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <!-- Jambes -->
+            <rect x="53" y="184" width="20" height="32" rx="10" fill="#4DCFCF" stroke="#111" stroke-width="2"/>
+            <rect x="87" y="184" width="20" height="32" rx="10" fill="#4DCFCF" stroke="#111" stroke-width="2"/>
+            <!-- Sneakers -->
+            <rect x="37" y="208" width="38" height="16" rx="7" fill="#FF3F8E" stroke="#111" stroke-width="2"/>
+            <rect x="85" y="208" width="38" height="16" rx="7" fill="#FFE234" stroke="#111" stroke-width="2"/>
+          </svg>
+        </div>
+
+        <!-- Carte flottante jackpot -->
+        <div class="h-float-card">
+          <svg class="h-swirl" viewBox="0 0 56 44" width="56" height="44" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 6 40 C 14 22 32 16 44 24 C 36 30 40 10 48 8" stroke="#111" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M 46 6 L 48 14 L 56 11" stroke="#111" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="h-float-inner">
+            <span class="h-float-label">Jackpot spécial</span>
+            <span class="h-float-val">100€</span>
+          </div>
+        </div>
+
+        <!-- Icônes sociales bas-droite -->
+        <div class="h-socials">
+          <span class="h-soc-icon">𝕏</span>
+          <span class="h-soc-icon">ig</span>
+          <span class="h-soc-icon">dc</span>
+        </div>
+
+        <!-- Copyright -->
+        <p class="h-copy">© 2024 La Cagnotte Secrète. Tous droits réservés.</p>
+
+      </div><!-- /h-body -->
+    </div><!-- /hero-box -->
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       APP SECTION
+  ════════════════════════════════════════ -->
+  <div class="page-body" id="appSection">
+    <div class="container">
+
+      <header>
+        <span class="header-deco left">✦</span>
+        <span class="header-deco right">✦</span>
+        <h1>🎰 La Cagnotte Secrète</h1>
+        <p class="subtitle">✨ Misez 2€ et tentez votre chance !</p>
+      </header>
+
+      <!-- Auth section (visible quand non connecté) -->
+      <div id="authSection" class="auth-section">
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="tabLogin">Connexion</button>
+          <button class="auth-tab" id="tabRegister">Inscription</button>
+        </div>
+
+        <form id="loginForm" class="auth-form">
+          <input type="text" id="loginUsername" placeholder="Nom d'utilisateur" maxlength="30" autocomplete="username" required />
+          <input type="password" id="loginPassword" placeholder="Mot de passe" maxlength="100" autocomplete="current-password" required />
+          <button type="submit">Se connecter →</button>
         </form>
-      </section>
 
-      <!-- Notifications -->
-      <section id="notification" class="notification hidden"></section>
+        <form id="registerForm" class="auth-form hidden">
+          <input type="text" id="regUsername" placeholder="Choisir un nom d'utilisateur" maxlength="30" autocomplete="username" required />
+          <input type="password" id="regPassword" placeholder="Choisir un mot de passe" maxlength="100" autocomplete="new-password" required />
+          <button type="submit">Créer mon compte →</button>
+          <p class="auth-bonus">🎁 20€ offerts à l'inscription !</p>
+        </form>
 
-      <!-- Historique -->
-      <section class="history-section">
-        <div class="section-badge">⚡ Dernières mises</div>
-        <ul id="historyList"></ul>
-      </section>
+        <div id="authNotif" class="notification hidden"></div>
+      </div>
 
-      <!-- Règles -->
-      <section class="rules">
-        <div class="section-badge">📜 Règles du jeu</div>
-        <ol>
-          <li>Misez <strong>2€</strong> depuis votre compte.</li>
-          <li>Votre mise alimente la <strong>cagnotte secrète</strong>.</li>
-          <li>Quand elle atteint son objectif, le dernier miseur remporte <strong>9€</strong> crédités sur son compte.</li>
-          <li>Une partie alimente la <strong>cagnotte spéciale</strong> : quand elle atteint son objectif, le dernier miseur remporte le <strong>JACKPOT de 100€</strong> !</li>
-        </ol>
-      </section>
+      <!-- Section de jeu (visible quand connecté) -->
+      <div id="gameSection" class="hidden">
+
+        <!-- Barre utilisateur -->
+        <div class="user-bar">
+          <span>👋 Bonjour, <strong id="userName"></strong></span>
+          <div class="balance-chip">💰 <strong id="userBalance">0.00€</strong></div>
+          <button id="logoutBtn">Déco →</button>
+        </div>
+
+        <!-- Formulaire de mise -->
+        <section class="bet-section">
+          <h2>Tentez votre chance !</h2>
+          <form id="betForm">
+            <button type="submit" id="betBtn">
+              <span class="btn-text">Miser 2€ 🎲</span>
+              <span class="btn-spinner" hidden>⏳</span>
+            </button>
+          </form>
+        </section>
+
+        <!-- Notifications -->
+        <section id="notification" class="notification hidden"></section>
+
+        <!-- Historique -->
+        <section class="history-section">
+          <div class="section-badge">⚡ Dernières mises</div>
+          <ul id="historyList"></ul>
+        </section>
+
+        <!-- Règles -->
+        <section class="rules">
+          <div class="section-badge">📜 Règles du jeu</div>
+          <ol>
+            <li>Misez <strong>2€</strong> depuis votre compte.</li>
+            <li>Votre mise alimente la <strong>cagnotte secrète</strong>.</li>
+            <li>Quand elle atteint son objectif, le dernier miseur remporte <strong>9€</strong> crédités sur son compte.</li>
+            <li>Une partie alimente la <strong>cagnotte spéciale</strong> : quand elle atteint son objectif, le dernier miseur remporte le <strong>JACKPOT de 100€</strong> !</li>
+          </ol>
+        </section>
+
+      </div>
 
     </div>
-
-  </div>
+  </div><!-- /page-body -->
 
   <!-- Ticker bas de page -->
   <div class="ticker-wrap">
