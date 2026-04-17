@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog — 4 Mousquetaires Studio</title>
+  <meta name="description" content="Actualité gaming, analyses de trailers et behind the scenes de nos productions. Le blog du studio d'animation 4 Mousquetaires.">
+  <link rel="canonical" href="https://4mousquetaires.fr/blog.html">
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    .blog-filter-btn {
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.5rem 1.25rem;
+      border-radius: 100px;
+      border: 1px solid var(--border-2);
+      color: var(--text-muted);
+      background: none;
+      cursor: pointer;
+      transition: all var(--t);
+    }
+    .blog-filter-btn:hover,
+    .blog-filter-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="nav__inner">
+    <a href="index.html" class="nav__logo">
+      <span class="nav__logo-icon">4M</span>
+      4 Mousquetaires
+    </a>
+    <ul class="nav__links">
+      <li><a href="services.html" class="nav__link">Services</a></li>
+      <li><a href="portfolio.html" class="nav__link">Réalisations</a></li>
+      <li><a href="about.html" class="nav__link">À propos</a></li>
+      <li><a href="blog.html" class="nav__link">Blog</a></li>
+      <li><a href="career.html" class="nav__link">Talents</a></li>
+      <li class="nav__cta"><a href="contact.html" class="btn btn--primary btn--sm">Parlons de votre projet</a></li>
+    </ul>
+    <button class="nav__burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+  <div class="nav__mobile">
+    <a href="services.html" class="nav__mobile-link">Services</a>
+    <a href="portfolio.html" class="nav__mobile-link">Réalisations</a>
+    <a href="about.html" class="nav__mobile-link">À propos</a>
+    <a href="blog.html" class="nav__mobile-link">Blog</a>
+    <a href="career.html" class="nav__mobile-link">Talents</a>
+    <a href="contact.html" class="btn btn--primary">Parlons de votre projet</a>
+  </div>
+</nav>
+
+<!-- Page Header -->
+<div class="page-hero">
+  <div class="container--narrow text-center">
+    <span class="label">Blog</span>
+    <h1 style="margin:0.75rem 0;">Actualité, analyses,<br>behind the scenes</h1>
+    <p class="lead" style="margin:0 auto;">On écrit sur ce qu'on fait, ce qu'on observe, et ce qui nous inspire dans l'animation gaming.</p>
+  </div>
+</div>
+
+<!-- Article épinglé -->
+<section class="section--sm" style="border-top:1px solid var(--border);">
+  <div class="container">
+    <span class="label" style="display:block;margin-bottom:1.25rem;">Article épinglé</span>
+    <a href="blog/comment-on-fait-un-trailer-bts.html" class="blog-featured reveal" style="display:grid;text-decoration:none;">
+      <div class="blog-featured__thumb">
+        <!-- Remplacer par : <img src="assets/images/blog/decimus-bts.jpg" alt="Behind the scenes Decimus"> -->
+        <div class="video-placeholder" style="background:linear-gradient(135deg,#1a0d3d,#0d1a2b);">
+          <div class="video-placeholder__label">
+            <span>📝</span>
+            <span>Image de couverture — blog/decimus-bts.jpg</span>
+          </div>
+        </div>
+      </div>
+      <div class="blog-featured__body">
+        <div style="display:flex;gap:0.75rem;align-items:center;margin-bottom:1rem;">
+          <span class="badge badge--primary">Behind the Scenes</span>
+          <span style="font-size:0.8rem;color:var(--text-subtle);">12 mars 2025 · 8 min de lecture</span>
+        </div>
+        <h2 class="blog-featured__title">Comment on a fait le trailer de Decimus TCG — de zéro à la livraison</h2>
+        <p style="color:var(--text-muted);font-size:0.92rem;line-height:1.7;margin:1rem 0 1.5rem;">
+          On décortique le processus complet : du brief initial avec le client, aux choix visuels sur les clans, en passant par les erreurs qu'on referait différemment. Un projet qui nous a appris beaucoup.
+        </p>
+        <span class="btn btn--primary">Lire l'article →</span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- Articles récents + filtres -->
+<section class="section" style="border-top:1px solid var(--border);">
+  <div class="container">
+
+    <!-- Filtres -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:2.5rem;" class="reveal">
+      <span class="label" style="margin:0;">Articles récents</span>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <button class="blog-filter-btn active" data-cat="all">Tous</button>
+        <button class="blog-filter-btn" data-cat="actu">Actualité Gaming</button>
+        <button class="blog-filter-btn" data-cat="bts">Behind the Scenes</button>
+      </div>
+    </div>
+
+    <!-- Grille articles -->
+    <div class="grid-3" id="blog-grid">
+
+      <a href="blog/trailer-esport-tendances-2025.html" class="blog-card blog-item reveal" data-cat="actu" style="text-decoration:none;">
+        <div class="blog-card__thumb">
+          <div class="video-placeholder" style="background:linear-gradient(135deg,#0d1a2b,#1a2b0d);">
+            <div class="video-placeholder__label"><span>🎮</span></div>
+          </div>
+        </div>
+        <div class="blog-card__body">
+          <div class="blog-card__meta">
+            <span class="badge badge--accent">Actualité Gaming</span>
+            <span>5 min</span>
+          </div>
+          <div class="blog-card__title">Trailers esport 2025 : les 5 tendances visuelles qui dominent</div>
+          <div class="blog-card__excerpt">Du slow-motion aux particles systems, on analyse ce qui marche cette année dans les trailers de créations d'équipes et d'annonces de tournois.</div>
+          <span class="blog-card__read">Lire →</span>
+        </div>
+      </a>
+
+      <a href="blog/animation-ia-outil-pas-menace.html" class="blog-card blog-item reveal reveal--delay-1" data-cat="actu" style="text-decoration:none;">
+        <div class="blog-card__thumb">
+          <div class="video-placeholder" style="background:linear-gradient(135deg,#2b0d1a,#0d2b2b);">
+            <div class="video-placeholder__label"><span>🤖</span></div>
+          </div>
+        </div>
+        <div class="blog-card__body">
+          <div class="blog-card__meta">
+            <span class="badge badge--accent">Actualité Gaming</span>
+            <span>7 min</span>
+          </div>
+          <div class="blog-card__title">L'IA dans l'animation gaming : outil ou menace ?</div>
+          <div class="blog-card__excerpt">On utilise des outils IA dans notre flux de production. On explique comment, pourquoi, et ce qu'on refuse catégoriquement de déléguer à une machine.</div>
+          <span class="blog-card__read">Lire →</span>
+        </div>
+      </a>
+
+      <a href="blog/galions-roster-2025-bts.html" class="blog-card blog-item reveal reveal--delay-2" data-cat="bts" style="text-decoration:none;">
+        <div class="blog-card__thumb">
+          <div class="video-placeholder" style="background:linear-gradient(135deg,#0d2b0d,#2b1a0d);">
+            <div class="video-placeholder__label"><span>⚓</span></div>
+          </div>
+        </div>
+        <div class="blog-card__body">
+          <div class="blog-card__meta">
+            <span class="badge badge--primary">Behind the Scenes</span>
+            <span>6 min</span>
+          </div>
+          <div class="blog-card__title">BTS : L'annonce roster Galions 2025 en 10 jours</div>
+          <div class="blog-card__excerpt">Timeline serrée, brief incomplet, client réactif. On raconte comment on a livré deux trailers en parallèle sans exploser le planning.</div>
+          <span class="blog-card__read">Lire →</span>
+        </div>
+      </a>
+
+      <a href="blog/pourquoi-votre-trailer-indie-rate.html" class="blog-card blog-item reveal" data-cat="actu" style="text-decoration:none;">
+        <div class="blog-card__thumb">
+          <div class="video-placeholder" style="background:linear-gradient(135deg,#1a0d2b,#2b0d0d);">
+            <div class="video-placeholder__label"><span>❌</span></div>
+          </div>
+        </div>
+        <div class="blog-card__body">
+          <div class="blog-card__meta">
+            <span class="badge badge--accent">Actualité Gaming</span>
+            <span>9 min</span>
+          </div>
+          <div class="blog-card__title">Pourquoi votre trailer de jeu indépendant ne marche pas</div>
+          <div class="blog-card__excerpt">On a regardé des centaines de trailers de jeux indépendants. Voici les 7 erreurs qu'on voit à chaque fois — et comment les éviter sans budget AAA.</div>
+          <span class="blog-card__read">Lire →</span>
+        </div>
+      </a>
+
+      <a href="blog/spine2d-vs-after-effects-animation-2d.html" class="blog-card blog-item reveal reveal--delay-1" data-cat="bts" style="text-decoration:none;">
+        <div class="blog-card__thumb">
+          <div class="video-placeholder" style="background:linear-gradient(135deg,#0d0d2b,#2b2b0d);">
+            <div class="video-placeholder__label"><span>🎨</span></div>
+          </div>
+        </div>
+        <div class="blog-card__body">
+          <div class="blog-card__meta">
+            <span class="badge badge--primary">Behind the Scenes</span>
+            <span>5 min</span>
+          </div>
+          <div class="blog-card__title">Spine2D vs After Effects : lequel choisir pour votre trailer 2D ?</div>
+          <div class="blog-card__excerpt">On compare les deux approches à partir de nos propres projets. Cas d'usage, avantages, limites — avec des exemples concrets tirés de nos productions.</div>
+          <span class="blog-card__read">Lire →</span>
+        </div>
+      </a>
+
+      <a href="blog/king-con-trailer-smash-bts.html" class="blog-card blog-item reveal reveal--delay-2" data-cat="bts" style="text-decoration:none;">
+        <div class="blog-card__thumb">
+          <div class="video-placeholder" style="background:linear-gradient(135deg,#2b2b0d,#0d1a2b);">
+            <div class="video-placeholder__label"><span>👑</span></div>
+          </div>
+        </div>
+        <div class="blog-card__body">
+          <div class="blog-card__meta">
+            <span class="badge badge--primary">Behind the Scenes</span>
+            <span>4 min</span>
+          </div>
+          <div class="blog-card__title">King Con : créer un trailer pour une convention Smash Bros</div>
+          <div class="blog-card__excerpt">Une convention esport c'est différent d'un jeu ou d'une équipe. On raconte comment on a capturé l'énergie de la scène compétitive Smash en moins de 60 secondes.</div>
+          <span class="blog-card__read">Lire →</span>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- Pagination (statique pour l'instant) -->
+    <div style="display:flex;justify-content:center;gap:0.5rem;margin-top:3rem;" class="reveal">
+      <button class="btn btn--secondary" disabled>← Précédent</button>
+      <button class="btn btn--primary">1</button>
+      <button class="btn btn--secondary">2</button>
+      <button class="btn btn--secondary">Suivant →</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- CTA Newsletter-like -->
+<section class="section--sm" style="border-top:1px solid var(--border);">
+  <div class="container">
+    <div class="cta-strip reveal" style="text-align:left;display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:center;">
+      <div>
+        <h3 style="margin-bottom:0.5rem;">On a un projet qui vous ressemble ?</h3>
+        <p style="color:var(--text-muted);font-size:0.9rem;margin:0;">Trailer, teaser, motion design — décrivez-nous ce dont vous avez besoin.</p>
+      </div>
+      <a href="contact.html" class="btn btn--primary btn--lg" style="white-space:nowrap;">Nous contacter</a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__logo"><span class="nav__logo-icon" style="width:28px;height:28px;font-size:0.75rem;">4M</span>4 Mousquetaires</div>
+        <p class="footer__tagline">Studio d'animation spécialisé gaming &amp; esport.</p>
+        <div class="footer__socials">
+          <a href="#" class="footer__social">𝕏</a>
+          <a href="#" class="footer__social">IG</a>
+          <a href="#" class="footer__social">YT</a>
+          <a href="#" class="footer__social">in</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer__col-title">Services</div>
+        <ul class="footer__links">
+          <li><a href="services/trailer-annonce.html" class="footer__link">Trailer d'annonce</a></li>
+          <li><a href="services/teaser-esport.html" class="footer__link">Teaser Esport</a></li>
+          <li><a href="services/motion-design.html" class="footer__link">Motion Design</a></li>
+          <li><a href="services/animation-2d-3d.html" class="footer__link">Animation 2D/3D</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer__col-title">Studio</div>
+        <ul class="footer__links">
+          <li><a href="portfolio.html" class="footer__link">Réalisations</a></li>
+          <li><a href="about.html" class="footer__link">À propos</a></li>
+          <li><a href="career.html" class="footer__link">Talents</a></li>
+          <li><a href="blog.html" class="footer__link">Blog</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer__col-title">Contact</div>
+        <ul class="footer__links">
+          <li><a href="contact.html" class="footer__link">Formulaire</a></li>
+          <li><a href="mailto:contact@4mousquetaires.fr" class="footer__link">contact@4mousquetaires.fr</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span class="footer__copy">© 2025 4 Mousquetaires. Tous droits réservés.</span>
+      <a href="mentions-legales.html" class="footer__copy" style="text-decoration:underline;text-underline-offset:3px;">Mentions légales</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

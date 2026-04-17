@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact — 4 Mousquetaires Studio</title>
+  <meta name="description" content="Parlons de votre projet. Trailer gaming, teaser esport, motion design — on répond sous 48h.">
+  <link rel="canonical" href="https://4mousquetaires.fr/contact.html">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="nav__inner">
+    <a href="index.html" class="nav__logo">
+      <span class="nav__logo-icon">4M</span>
+      4 Mousquetaires
+    </a>
+    <ul class="nav__links">
+      <li><a href="services.html" class="nav__link">Services</a></li>
+      <li><a href="portfolio.html" class="nav__link">Réalisations</a></li>
+      <li><a href="about.html" class="nav__link">À propos</a></li>
+      <li><a href="blog.html" class="nav__link">Blog</a></li>
+      <li><a href="career.html" class="nav__link">Talents</a></li>
+      <li class="nav__cta"><a href="contact.html" class="btn btn--primary btn--sm">Parlons de votre projet</a></li>
+    </ul>
+    <button class="nav__burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+  <div class="nav__mobile">
+    <a href="services.html" class="nav__mobile-link">Services</a>
+    <a href="portfolio.html" class="nav__mobile-link">Réalisations</a>
+    <a href="about.html" class="nav__mobile-link">À propos</a>
+    <a href="blog.html" class="nav__mobile-link">Blog</a>
+    <a href="career.html" class="nav__mobile-link">Talents</a>
+    <a href="contact.html" class="btn btn--primary">Parlons de votre projet</a>
+  </div>
+</nav>
+
+<!-- Content -->
+<section style="padding:calc(var(--nav-h) + 4rem) 0 6rem;">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1.6fr;gap:5rem;align-items:start;max-width:1100px;margin:0 auto;">
+
+      <!-- Colonne gauche -->
+      <div>
+        <span class="label reveal">Contact</span>
+        <h1 class="reveal reveal--delay-1" style="margin:0.75rem 0 1.5rem;">On répond<br>sous 48h.</h1>
+        <p class="reveal reveal--delay-2" style="color:var(--text-muted);line-height:1.8;margin-bottom:2.5rem;">
+          Que vous ayez un brief précis ou juste une idée en tête, on aime en parler. Plus vous nous donnez de contexte, plus on peut vous répondre avec quelque chose d'utile.
+        </p>
+
+        <div style="display:flex;flex-direction:column;gap:1.5rem;" class="reveal reveal--delay-2">
+
+          <div style="display:flex;gap:1rem;align-items:flex-start;">
+            <div style="flex-shrink:0;width:40px;height:40px;border-radius:var(--r);background:rgba(124,58,237,0.12);display:flex;align-items:center;justify-content:center;font-size:1.1rem;">✉️</div>
+            <div>
+              <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.2rem;">Email</div>
+              <a href="mailto:contact@4mousquetaires.fr" style="color:var(--text-muted);font-size:0.9rem;transition:color var(--t);" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text-muted)'">contact@4mousquetaires.fr</a>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:1rem;align-items:flex-start;">
+            <div style="flex-shrink:0;width:40px;height:40px;border-radius:var(--r);background:rgba(124,58,237,0.12);display:flex;align-items:center;justify-content:center;font-size:1.1rem;">💬</div>
+            <div>
+              <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.2rem;">Discord</div>
+              <span style="color:var(--text-muted);font-size:0.9rem;">4mousquetaires — sur demande</span>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:1rem;align-items:flex-start;">
+            <div style="flex-shrink:0;width:40px;height:40px;border-radius:var(--r);background:rgba(124,58,237,0.12);display:flex;align-items:center;justify-content:center;font-size:1.1rem;">📍</div>
+            <div>
+              <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.2rem;">Localisation</div>
+              <span style="color:var(--text-muted);font-size:0.9rem;">France — 100% remote</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div style="margin-top:2.5rem;padding-top:2rem;border-top:1px solid var(--border);" class="reveal">
+          <div style="font-size:0.82rem;color:var(--text-subtle);margin-bottom:1rem;text-transform:uppercase;letter-spacing:0.1em;font-weight:600;">Nos réseaux</div>
+          <div style="display:flex;gap:0.75rem;">
+            <a href="#" class="footer__social" aria-label="Twitter/X">𝕏</a>
+            <a href="#" class="footer__social" aria-label="Instagram">IG</a>
+            <a href="#" class="footer__social" aria-label="YouTube">YT</a>
+            <a href="#" class="footer__social" aria-label="LinkedIn">in</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulaire -->
+      <div class="reveal reveal--delay-1">
+        <form class="js-form" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:2.5rem;" novalidate>
+          <h2 style="font-size:1.3rem;margin-bottom:2rem;">Décrivez-nous votre projet</h2>
+
+          <div class="form-row" style="margin-bottom:1.25rem;">
+            <div class="form-group">
+              <label class="form-label" for="f-name">Nom / Prénom *</label>
+              <input class="form-control" type="text" id="f-name" name="name" placeholder="Votre nom" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="f-email">Email *</label>
+              <input class="form-control" type="email" id="f-email" name="email" placeholder="votre@email.com" required>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:1.25rem;">
+            <label class="form-label" for="f-company">Société / Projet (optionnel)</label>
+            <input class="form-control" type="text" id="f-company" name="company" placeholder="Nom du studio, de l'équipe ou du jeu">
+          </div>
+
+          <div class="form-group" style="margin-bottom:1.25rem;">
+            <label class="form-label" for="f-service">Type de projet *</label>
+            <select class="form-select" id="f-service" name="service" required>
+              <option value="">Sélectionner un type de projet</option>
+              <option>Trailer d'annonce de jeu</option>
+              <option>Teaser esport / annonce d'équipe</option>
+              <option>Motion design / habillage</option>
+              <option>Animation 2D / 3D</option>
+              <option>Autre / à définir</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom:1.25rem;">
+            <label class="form-label" for="f-budget">Budget approximatif</label>
+            <select class="form-select" id="f-budget" name="budget">
+              <option value="">Sélectionner une fourchette</option>
+              <option value="<1k">Moins de 1 000 €</option>
+              <option value="1k-3k">1 000 – 3 000 €</option>
+              <option value="3k-7k">3 000 – 7 000 €</option>
+              <option value="7k+">7 000 € et plus</option>
+              <option value="discuss">Je préfère en discuter</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom:1.5rem;">
+            <label class="form-label" for="f-message">Votre projet *</label>
+            <textarea class="form-control" id="f-message" name="message" rows="5" placeholder="Décrivez votre projet, votre audience, vos références visuelles, le délai si vous en avez un... Plus c'est précis, mieux c'est." required></textarea>
+          </div>
+
+          <button type="submit" class="btn btn--primary btn--lg w-full" data-label="Envoyer ma demande">
+            Envoyer ma demande
+          </button>
+
+          <p style="text-align:center;font-size:0.78rem;color:var(--text-subtle);margin-top:1rem;line-height:1.5;">
+            Réponse sous 48h ouvrées · Vos données ne sont pas partagées · <a href="mentions-legales.html#rgpd" style="text-decoration:underline;color:inherit;">Politique de confidentialité</a>
+          </p>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__logo"><span class="nav__logo-icon" style="width:28px;height:28px;font-size:0.75rem;">4M</span>4 Mousquetaires</div>
+        <p class="footer__tagline">Studio d'animation spécialisé gaming &amp; esport.</p>
+        <div class="footer__socials">
+          <a href="#" class="footer__social">𝕏</a>
+          <a href="#" class="footer__social">IG</a>
+          <a href="#" class="footer__social">YT</a>
+          <a href="#" class="footer__social">in</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer__col-title">Services</div>
+        <ul class="footer__links">
+          <li><a href="services/trailer-annonce.html" class="footer__link">Trailer d'annonce</a></li>
+          <li><a href="services/teaser-esport.html" class="footer__link">Teaser Esport</a></li>
+          <li><a href="services/motion-design.html" class="footer__link">Motion Design</a></li>
+          <li><a href="services/animation-2d-3d.html" class="footer__link">Animation 2D/3D</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer__col-title">Studio</div>
+        <ul class="footer__links">
+          <li><a href="portfolio.html" class="footer__link">Réalisations</a></li>
+          <li><a href="about.html" class="footer__link">À propos</a></li>
+          <li><a href="career.html" class="footer__link">Talents</a></li>
+          <li><a href="blog.html" class="footer__link">Blog</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer__col-title">Contact</div>
+        <ul class="footer__links">
+          <li><a href="contact.html" class="footer__link">Formulaire</a></li>
+          <li><a href="mailto:contact@4mousquetaires.fr" class="footer__link">contact@4mousquetaires.fr</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span class="footer__copy">© 2025 4 Mousquetaires. Tous droits réservés.</span>
+      <a href="mentions-legales.html" class="footer__copy" style="text-decoration:underline;text-underline-offset:3px;">Mentions légales</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

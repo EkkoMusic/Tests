@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page introuvable — 4 Mousquetaires</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+<nav class="nav scrolled" id="nav">
+  <div class="nav__inner">
+    <a href="index.html" class="nav__logo">
+      <span class="nav__logo-icon">4M</span>
+      4 Mousquetaires
+    </a>
+    <ul class="nav__links">
+      <li><a href="services.html" class="nav__link">Services</a></li>
+      <li><a href="portfolio.html" class="nav__link">Réalisations</a></li>
+      <li><a href="about.html" class="nav__link">À propos</a></li>
+      <li><a href="blog.html" class="nav__link">Blog</a></li>
+      <li class="nav__cta"><a href="contact.html" class="btn btn--primary btn--sm">Parlons de votre projet</a></li>
+    </ul>
+    <button class="nav__burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+  <div class="nav__mobile">
+    <a href="services.html" class="nav__mobile-link">Services</a>
+    <a href="portfolio.html" class="nav__mobile-link">Réalisations</a>
+    <a href="about.html" class="nav__mobile-link">À propos</a>
+    <a href="blog.html" class="nav__mobile-link">Blog</a>
+    <a href="contact.html" class="btn btn--primary">Parlons de votre projet</a>
+  </div>
+</nav>
+
+<div style="position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 50% 30%, rgba(124,58,237,0.1) 0%, transparent 70%);pointer-events:none;"></div>
+
+  <div class="page-404">
+    <div style="position:relative;z-index:1;">
+      <div class="page-404__num">404</div>
+      <h1 style="font-size:clamp(1.5rem,3vw,2rem);margin-bottom:1rem;">Cette page a disparu dans le multivers</h1>
+      <p style="color:var(--text-muted);max-width:420px;margin:0 auto 2.5rem;line-height:1.7;">
+        Vous cherchez quelque chose qui n'existe pas (encore ?). Revenez à l'accueil ou jetez un œil à nos réalisations.
+      </p>
+      <div class="btn-group flex-center">
+        <a href="index.html" class="btn btn--primary btn--lg">← Retour à l'accueil</a>
+        <a href="portfolio.html" class="btn btn--secondary btn--lg">Voir nos réalisations</a>
+      </div>
+      <p style="margin-top:2rem;font-size:0.85rem;color:var(--text-subtle);">
+        Vous avez un projet ? <a href="contact.html" style="color:var(--primary);">Contactez-nous →</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script src="js/main.js"></script>
+</body>
+</html>
