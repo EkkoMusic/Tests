@@ -46,12 +46,13 @@
 <!-- ========== HERO ========== -->
 <section class="hero" id="hero">
   <div class="hero__bg">
-    <!-- Remplacer par : <video class="hero__video" autoplay muted loop playsinline src="assets/videos/showreel.mp4"></video> -->
-    <div class="video-placeholder" style="width:100%;height:100%;">
-      <div class="video-placeholder__label">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none"/></svg>
-        <span>Showreel — déposer video/showreel.mp4</span>
-      </div>
+    <div class="yt-bg-wrapper">
+      <iframe
+        src="https://www.youtube.com/embed/Bz11Nm3iEYw?autoplay=1&mute=1&loop=1&playlist=Bz11Nm3iEYw&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3&disablekb=1"
+        frameborder="0"
+        allow="autoplay; encrypted-media"
+        title="Showreel 4 Mousquetaires"
+      ></iframe>
     </div>
     <div class="hero__overlay"></div>
   </div>
@@ -72,10 +73,10 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           Parlons de votre projet
         </a>
-        <a href="portfolio.html" class="btn btn--secondary btn--lg">
+        <button class="btn btn--secondary btn--lg" id="showreel-btn">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Voir nos réalisations
-        </a>
+          Voir le showreel
+        </button>
       </div>
     </div>
   </div>
@@ -443,6 +444,19 @@
   </div>
 </footer>
 
+<!-- Showreel Modal -->
+<div class="modal-backdrop" id="showreel-modal" role="dialog" aria-modal="true" aria-label="Showreel">
+  <div class="modal" style="max-width:960px;">
+    <div class="modal__header">
+      <span style="font-family:var(--font-display);font-weight:700;">Showreel — 4 Mousquetaires</span>
+      <button class="modal__close" id="showreel-close" aria-label="Fermer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="showreel-video" style="aspect-ratio:16/9;background:#000;"></div>
+  </div>
+</div>
+
 <!-- Project Modal -->
 <div class="modal-backdrop" id="project-modal" role="dialog" aria-modal="true">
   <div class="modal">
@@ -464,5 +478,29 @@
 </div>
 
 <script src="js/main.js"></script>
+<script>
+  // Showreel modal
+  const showreelBtn   = document.getElementById('showreel-btn');
+  const showreelModal = document.getElementById('showreel-modal');
+  const showreelClose = document.getElementById('showreel-close');
+  const showreelVideo = document.getElementById('showreel-video');
+  const SHOWREEL_SRC  = 'https://www.youtube.com/embed/Bz11Nm3iEYw?autoplay=1&rel=0&modestbranding=1';
+
+  function openShowreel() {
+    showreelVideo.innerHTML = `<iframe src="${SHOWREEL_SRC}" width="100%" height="100%" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="display:block;width:100%;height:100%;"></iframe>`;
+    showreelModal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeShowreel() {
+    showreelModal.classList.remove('open');
+    showreelVideo.innerHTML = '';
+    document.body.style.overflow = '';
+  }
+
+  if (showreelBtn)   showreelBtn.addEventListener('click', openShowreel);
+  if (showreelClose) showreelClose.addEventListener('click', closeShowreel);
+  showreelModal.addEventListener('click', e => { if (e.target === showreelModal) closeShowreel(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && showreelModal.classList.contains('open')) closeShowreel(); });
+</script>
 </body>
 </html>

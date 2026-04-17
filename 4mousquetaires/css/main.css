@@ -497,6 +497,34 @@ h5          { font-size: 1rem; }
   z-index: 1;
 }
 
+/* --- YouTube background ----------------------- */
+.yt-bg-wrapper {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.yt-bg-wrapper iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* Scale to always cover: 16:9 ratio tricks */
+  width: 100vw;
+  height: 56.25vw;   /* 100vw / 16 * 9 */
+  min-height: 100vh;
+  min-width: 177.78vh; /* 100vh / 9 * 16 */
+  transform: translate(-50%, -50%);
+  opacity: 0.38;
+  pointer-events: none;
+}
+
+/* On mobile, autoplay is blocked — hide the iframe to avoid blank grey box */
+@media (max-width: 640px) {
+  .yt-bg-wrapper iframe { opacity: 0; }
+  .hero { background: linear-gradient(135deg, #0d0d2b 0%, #1a0d3d 50%, #0d1a2b 100%); }
+}
+
 /* --- Video placeholder ------------------------ */
 .video-placeholder {
   width: 100%;
