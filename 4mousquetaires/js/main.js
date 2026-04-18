@@ -8,9 +8,16 @@
   // --- Nav scroll behavior ---
   const nav = document.querySelector('.nav');
   if (nav) {
-    const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 40);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
+    const hero = document.querySelector('.hero');
+    if (hero) {
+      const observer = new IntersectionObserver(
+        ([entry]) => nav.classList.toggle('scrolled', !entry.isIntersecting),
+        { threshold: 0 }
+      );
+      observer.observe(hero);
+    } else {
+      nav.classList.add('scrolled');
+    }
   }
 
   // --- Mobile nav toggle ---

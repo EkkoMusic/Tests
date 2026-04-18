@@ -151,13 +151,12 @@ h5          { font-size: 1rem; }
   height: var(--nav-h);
   display: flex;
   align-items: center;
-  background: var(--bg);
-  transition: background var(--t), backdrop-filter var(--t), border-color var(--t);
+  background: transparent;
+  transition: background 0.4s ease, border-color 0.4s ease;
 }
 
 .nav.scrolled {
   background: var(--bg);
-  backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid var(--border);
 }
 
