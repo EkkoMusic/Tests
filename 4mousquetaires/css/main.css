@@ -152,6 +152,7 @@ h5          { font-size: 1rem; }
   display: flex;
   align-items: center;
   background: transparent;
+  border-bottom: 1px solid transparent;
   transition: background 0.4s ease, border-color 0.4s ease;
 }
 
