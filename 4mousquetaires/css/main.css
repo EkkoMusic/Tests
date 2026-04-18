@@ -455,8 +455,8 @@ h5          { font-size: 1rem; }
   position: relative;
   min-height: 100vh;
   display: flex;
-  align-items: center;
-  padding-top: var(--nav-h);
+  align-items: flex-start;
+  padding-top: calc(var(--nav-h) + 2.5rem);
   overflow: hidden;
 }
 
