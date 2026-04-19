@@ -65,7 +65,7 @@
           <div id="svc-yt-player"></div>
           <div id="svc-cover" style="position:absolute;inset:0;background:#000;opacity:0;z-index:6;pointer-events:none;transition:opacity 0.4s ease;"></div>
           <div id="svc-poster" style="position:absolute;inset:0;z-index:2;transition:opacity 0.4s ease;">
-            <img src="https://img.youtube.com/vi/hg8AyfjLiSM/maxresdefault.jpg" alt="King Con" style="width:100%;height:100%;object-fit:cover;display:block;">
+            <img src="https://img.youtube.com/vi/ICbvqYJVDno/maxresdefault.jpg" alt="Decimus TCG" style="width:100%;height:100%;object-fit:cover;display:block;">
           </div>
           <div style="position:absolute;bottom:1rem;right:1rem;display:flex;gap:0.5rem;z-index:10;">
             <button id="svc-play-btn" onclick="svcPlay()" style="width:48px;height:48px;border-radius:50%;border:none;background:rgba(15,18,21,0.82);backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;">
@@ -215,7 +215,7 @@ function svcFlash(ms) {
 
 function onYouTubeIframeAPIReady() {
   svcPlayer = new YT.Player('svc-yt-player', {
-    videoId: 'hg8AyfjLiSM',
+    videoId: 'ICbvqYJVDno',
     playerVars: { controls: 0, rel: 0, modestbranding: 1, showinfo: 0, iv_load_policy: 3, playsinline: 1 },
     events: {
       onStateChange: function(e) {
