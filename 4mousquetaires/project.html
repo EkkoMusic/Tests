@@ -119,6 +119,27 @@
       transition: background 0.2s, transform 0.15s;
     }
     .proj-player__btn:hover { background: rgba(15,18,21,0.98); transform: scale(1.08); }
+    /* Progress bar */
+    .proj-player__progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: rgba(255,255,255,0.15);
+      opacity: 0;
+      transition: opacity 0.3s ease, height 0.2s ease;
+      cursor: pointer;
+      z-index: 10;
+    }
+    .proj-player:hover .proj-player__progress { opacity: 1; height: 4px; }
+    .proj-player__progress-fill {
+      height: 100%;
+      background: #fff;
+      width: 0%;
+      pointer-events: none;
+      transition: width 0.4s linear;
+    }
 
     /* Sections */
     .proj-section {
@@ -280,6 +301,10 @@
     </div>
     <!-- YT API injects iframe here -->
     <div id="yt-player"></div>
+    <!-- Progress bar -->
+    <div class="proj-player__progress" id="player-progress">
+      <div class="proj-player__progress-fill" id="player-progress-fill"></div>
+    </div>
     <!-- Custom controls -->
     <div class="proj-player__controls">
       <button class="proj-player__btn" id="player-play-btn" title="Lecture">
@@ -419,9 +444,12 @@ if (!proj) {
 
   // Custom YT player
   var ytPlayer = null;
-  var posterEl  = document.getElementById('proj-poster');
-  var playBtn   = document.getElementById('player-play-btn');
-  var pauseBtn  = document.getElementById('player-pause-btn');
+  var progressInterval = null;
+  var posterEl    = document.getElementById('proj-poster');
+  var playBtn     = document.getElementById('player-play-btn');
+  var pauseBtn    = document.getElementById('player-pause-btn');
+  var progressBar = document.getElementById('player-progress');
+  var progressFill= document.getElementById('player-progress-fill');
 
   var tag = document.createElement('script');
   tag.src = 'https://www.youtube.com/iframe_api';
@@ -439,7 +467,16 @@ if (!proj) {
           var playing = e.data === YT.PlayerState.PLAYING;
           playBtn.style.display  = playing ? 'none' : 'flex';
           pauseBtn.style.display = playing ? 'flex' : 'none';
-          if (playing) posterEl.classList.add('hidden');
+          if (playing) {
+            posterEl.classList.add('hidden');
+            progressInterval = setInterval(function () {
+              if (!ytPlayer || !ytPlayer.getDuration) return;
+              var pct = (ytPlayer.getCurrentTime() / ytPlayer.getDuration()) * 100;
+              progressFill.style.width = pct + '%';
+            }, 300);
+          } else {
+            clearInterval(progressInterval);
+          }
         }
       }
     });
@@ -450,6 +487,15 @@ if (!proj) {
   });
   pauseBtn.addEventListener('click', function () {
     if (ytPlayer) ytPlayer.pauseVideo();
+  });
+
+  // Click on progress bar to seek
+  progressBar.addEventListener('click', function (e) {
+    if (!ytPlayer || !ytPlayer.getDuration) return;
+    var rect = progressBar.getBoundingClientRect();
+    var pct  = (e.clientX - rect.left) / rect.width;
+    ytPlayer.seekTo(ytPlayer.getDuration() * pct, true);
+    progressFill.style.width = (pct * 100) + '%';
   });
 }
 </script>
