@@ -85,12 +85,19 @@
         </div>
       </div>
       <div class="reveal reveal--delay-1">
-        <div style="aspect-ratio:16/9;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;">
-          <div class="video-placeholder">
-            <div class="video-placeholder__label">
-              <span>🎬</span>
-              <span>Exemple — Decimus TCG</span>
-            </div>
+        <div style="aspect-ratio:16/9;border-radius:var(--r-lg);overflow:hidden;position:relative;background:#000;">
+          <div id="p1-yt"></div>
+          <div id="p1-cover" style="position:absolute;inset:0;background:#000;opacity:0;z-index:6;pointer-events:none;transition:opacity 0.4s ease;"></div>
+          <div id="p1-poster" style="position:absolute;inset:0;z-index:2;transition:opacity 0.4s ease;">
+            <img src="https://img.youtube.com/vi/ICbvqYJVDno/maxresdefault.jpg" alt="Decimus TCG" style="width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.1);">
+          </div>
+          <div style="position:absolute;bottom:0.75rem;right:0.75rem;display:flex;gap:0.5rem;z-index:10;">
+            <button id="p1-play" onclick="svPlay(1)" style="width:44px;height:44px;border-radius:50%;border:none;background:rgba(15,18,21,0.82);backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+            </button>
+            <button id="p1-pause" onclick="svPause(1)" style="width:44px;height:44px;border-radius:50%;border:none;background:rgba(15,18,21,0.82);backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:none;align-items:center;justify-content:center;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            </button>
           </div>
         </div>
         <div class="tags" style="margin-top:1rem;">
@@ -108,12 +115,19 @@
   <div class="container">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;">
       <div class="reveal">
-        <div style="aspect-ratio:16/9;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;">
-          <div class="video-placeholder">
-            <div class="video-placeholder__label">
-              <span>⚡</span>
-              <span>Exemple — Esprit Shonnen × MS</span>
-            </div>
+        <div style="aspect-ratio:16/9;border-radius:var(--r-lg);overflow:hidden;position:relative;background:#000;">
+          <div id="p2-yt"></div>
+          <div id="p2-cover" style="position:absolute;inset:0;background:#000;opacity:0;z-index:6;pointer-events:none;transition:opacity 0.4s ease;"></div>
+          <div id="p2-poster" style="position:absolute;inset:0;z-index:2;transition:opacity 0.4s ease;">
+            <img src="https://img.youtube.com/vi/Oa51i4xSz9c/maxresdefault.jpg" alt="Galions 2026" style="width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.1);">
+          </div>
+          <div style="position:absolute;bottom:0.75rem;right:0.75rem;display:flex;gap:0.5rem;z-index:10;">
+            <button id="p2-play" onclick="svPlay(2)" style="width:44px;height:44px;border-radius:50%;border:none;background:rgba(15,18,21,0.82);backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+            </button>
+            <button id="p2-pause" onclick="svPause(2)" style="width:44px;height:44px;border-radius:50%;border:none;background:rgba(15,18,21,0.82);backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:none;align-items:center;justify-content:center;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            </button>
           </div>
         </div>
       </div>
@@ -376,6 +390,44 @@
   </div>
 </footer>
 
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+var svPlayers = {};
+var svVideos  = { 1: 'ICbvqYJVDno', 2: 'Oa51i4xSz9c' };
+
+function svFlash(n, ms) {
+  var c = document.getElementById('p'+n+'-cover');
+  c.style.transition = 'none'; c.style.opacity = '1';
+  setTimeout(function() { c.style.transition = 'opacity 0.4s ease'; c.style.opacity = '0'; }, ms || 350);
+}
+
+function onYouTubeIframeAPIReady() {
+  [1, 2].forEach(function(n) {
+    svPlayers[n] = new YT.Player('p'+n+'-yt', {
+      videoId: svVideos[n],
+      playerVars: { controls: 0, rel: 0, modestbranding: 1, showinfo: 0, iv_load_policy: 3, playsinline: 1 },
+      events: {
+        onStateChange: function(e) {
+          var playing = e.data === YT.PlayerState.PLAYING;
+          document.getElementById('p'+n+'-play').style.display  = playing ? 'none' : 'flex';
+          document.getElementById('p'+n+'-pause').style.display = playing ? 'flex' : 'none';
+          if (playing) {
+            var p = document.getElementById('p'+n+'-poster');
+            p.style.opacity = '0'; p.style.pointerEvents = 'none';
+          }
+          if (e.data === YT.PlayerState.ENDED) {
+            svFlash(n, 350);
+            setTimeout(function() { svPlayers[n].playVideo(); }, 100);
+          }
+        }
+      }
+    });
+  });
+}
+
+function svPlay(n)  { if (svPlayers[n]) { svFlash(n, 350); svPlayers[n].playVideo(); } }
+function svPause(n) { if (svPlayers[n]) { svFlash(n, 350); svPlayers[n].pauseVideo(); } }
+</script>
 <script src="js/main.js"></script>
 </body>
 </html>
