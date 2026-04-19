@@ -12,7 +12,7 @@
 
     /* Stack */
     .pf-stack {
-      max-width: 1400px;
+      max-width: 900px;
       margin: 0 auto;
       padding: calc(var(--nav-h) + 3.5rem) 2rem 5rem;
       display: flex;
@@ -23,7 +23,7 @@
     .pf-item {
       position: relative;
       width: 100%;
-      aspect-ratio: 21/5;
+      aspect-ratio: 16/9;
       overflow: hidden;
       cursor: pointer;
       background: #000;
@@ -102,7 +102,6 @@
 
     @media (max-width: 768px) {
       .pf-stack { padding: calc(var(--nav-h) + 2rem) 1rem 4rem; }
-      .pf-item { aspect-ratio: 16/7; }
       .pf-item__label { opacity: 1; transform: none; }
     }
     @media (max-width: 480px) {
