@@ -4,159 +4,132 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Réalisations — 4 Mousquetaires Studio</title>
-  <meta name="description" content="Nos trailers, teasers et animations pour Decimus TCG, Galions Esport, Esprit Shonnen, King Con. Portfolio du studio d'animation gaming 4 Mousquetaires.">
+  <meta name="description" content="Nos trailers, teasers et animations pour Decimus TCG, Galions Esport, Esprit Shonnen, King Con.">
   <link rel="canonical" href="https://4mousquetaires.fr/portfolio.html">
   <link rel="stylesheet" href="css/main.css">
   <style>
-    body { background: #0a0a0a; }
+    body { background: #111; }
 
-    .canvas-header {
-      padding: calc(var(--nav-h) + 2rem) 0 1.5rem;
-    }
-    .canvas-header__inner {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 1.5rem;
+    .pf-header {
+      padding: calc(var(--nav-h) + 1.5rem) 2rem 1.25rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-    .canvas-header h1 { font-size: clamp(1.4rem, 2.5vw, 2rem); margin: 0; }
-
-    /* Stack — one project per row */
-    .cv-stack {
       max-width: 1400px;
       margin: 0 auto;
-      padding: 0 1.5rem 4rem;
+    }
+    .pf-header h1 {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-subtle);
+      margin: 0;
+    }
+    .pf-count {
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      color: var(--text-subtle);
+    }
+
+    /* Stack */
+    .pf-stack {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 2rem 5rem;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
     }
 
-    .cv-item {
+    .pf-item {
       position: relative;
       width: 100%;
-      aspect-ratio: 16/5;
+      aspect-ratio: 21/8;
       overflow: hidden;
       cursor: pointer;
-      background: #111;
+      background: #000;
+      display: block;
+      text-decoration: none;
     }
 
-    .cv-item__thumb {
+    .pf-item__img {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
       object-position: center center;
-      transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94), filter 0.4s ease;
-      filter: brightness(0.75);
+      transition: transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94),
+                  filter 0.4s ease;
+      filter: brightness(0.7);
     }
-    .cv-item:hover .cv-item__thumb {
-      transform: scale(1.05);
-      filter: brightness(0.45);
+    .pf-item:hover .pf-item__img {
+      transform: scale(1.04);
+      filter: brightness(0.35);
     }
 
-    /* Gradient bottom for readability */
-    .cv-item__overlay {
+    /* Dark overlay */
+    .pf-item__overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 50%);
-      transition: background 0.35s ease;
+      background: rgba(0,0,0,0);
+      transition: background 0.4s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .cv-item:hover .cv-item__overlay {
-      background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.15) 100%);
+    .pf-item:hover .pf-item__overlay {
+      background: rgba(0,0,0,0.45);
     }
 
-    /* Title centered at bottom */
-    .cv-item__label {
-      position: absolute;
-      bottom: 1.5rem;
-      left: 0;
-      right: 0;
+    /* Center label — hidden by default, appears on hover */
+    .pf-item__label {
       text-align: center;
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: clamp(1rem, 2vw, 1.5rem);
-      color: #fff;
-      letter-spacing: 0.01em;
-      text-shadow: 0 2px 12px rgba(0,0,0,0.6);
-      transition: transform 0.3s ease;
-    }
-    .cv-item:hover .cv-item__label { transform: translateY(-4px); }
-
-    /* Play button, appears on hover */
-    .cv-item__play {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0.8);
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.12);
-      backdrop-filter: blur(8px);
-      border: 1.5px solid rgba(255,255,255,0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
       opacity: 0;
-      transition: opacity 0.3s ease, transform 0.3s ease;
+      transform: translateY(10px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      pointer-events: none;
     }
-    .cv-item:hover .cv-item__play {
+    .pf-item:hover .pf-item__label {
       opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
+      transform: translateY(0);
     }
 
-    /* Modal */
-    .cv-modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.92);
-      z-index: 1000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-      backdrop-filter: blur(6px);
-    }
-    .cv-modal-backdrop.open { display: flex; }
-    .cv-modal { width: 100%; max-width: 1100px; position: relative; }
-    .cv-modal__video { width: 100%; aspect-ratio: 16/9; background: #000; }
-    .cv-modal__video iframe { width: 100%; height: 100%; border: none; display: block; }
-    .cv-modal__close {
-      position: absolute;
-      top: -3rem;
-      right: 0;
-      background: none;
-      border: none;
+    .pf-item__name {
+      display: block;
+      font-family: var(--font-display);
+      font-size: clamp(0.85rem, 1.6vw, 1.25rem);
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
       color: #fff;
-      cursor: pointer;
+      margin-bottom: 0.6rem;
+    }
+    .pf-item__sep {
+      display: block;
+      color: rgba(255,255,255,0.5);
       font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      opacity: 0.7;
-      transition: opacity 0.2s;
+      margin-bottom: 0.6rem;
+      letter-spacing: 0.05em;
     }
-    .cv-modal__close:hover { opacity: 1; }
-    .cv-modal__info {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.75rem 0 0;
-      gap: 1rem;
+    .pf-item__cat {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
     }
-    .cv-modal__title { font-family: var(--font-display); font-weight: 700; font-size: 1rem; }
 
     @media (max-width: 768px) {
-      .cv-item { aspect-ratio: 16/7; }
-      .canvas-header__inner { flex-direction: column; align-items: flex-start; }
+      .pf-stack { padding: 0 1rem 4rem; }
+      .pf-header { padding: calc(var(--nav-h) + 1rem) 1rem 1rem; }
+      .pf-item { aspect-ratio: 16/7; }
+      .pf-item__label { opacity: 1; transform: none; }
     }
     @media (max-width: 480px) {
-      .cv-item { aspect-ratio: 16/9; }
+      .pf-item { aspect-ratio: 16/9; }
     }
   </style>
 </head>
@@ -188,95 +161,79 @@
   </div>
 </nav>
 
-<div class="canvas-header">
-  <div class="canvas-header__inner">
-    <h1>Nos réalisations</h1>
-  </div>
+<div class="pf-header">
+  <h1>Réalisations</h1>
+  <span class="pf-count">6 projets</span>
 </div>
 
-<div class="cv-stack" id="cv-stack">
+<div class="pf-stack">
 
-  <div class="cv-item"
-       data-video="https://www.youtube.com/embed/ICbvqYJVDno?rel=0&modestbranding=1&autoplay=1"
-       data-title="Decimus TCG — Trailer Clans 2023">
-    <img class="cv-item__thumb" src="https://img.youtube.com/vi/ICbvqYJVDno/maxresdefault.jpg" alt="Decimus TCG">
-    <div class="cv-item__overlay"></div>
-    <div class="cv-item__label">Decimus TCG — Trailer Clans 2023</div>
-    <div class="cv-item__play">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+  <a class="pf-item" href="project.html?id=decimus-tcg">
+    <img class="pf-item__img" src="https://img.youtube.com/vi/ICbvqYJVDno/maxresdefault.jpg" alt="Decimus TCG">
+    <div class="pf-item__overlay">
+      <div class="pf-item__label">
+        <span class="pf-item__name">Decimus TCG — Trailer Clans 2023</span>
+        <span class="pf-item__sep">—</span>
+        <span class="pf-item__cat">Trailer d'annonce</span>
+      </div>
     </div>
-  </div>
+  </a>
 
-  <div class="cv-item"
-       data-video="https://www.youtube.com/embed/PbMsGPyduQM?rel=0&modestbranding=1&autoplay=1"
-       data-title="Esprit Shonnen × MS — Annonce équipe">
-    <img class="cv-item__thumb" src="https://img.youtube.com/vi/PbMsGPyduQM/maxresdefault.jpg" alt="Esprit Shonnen × MS Trailer 1">
-    <div class="cv-item__overlay"></div>
-    <div class="cv-item__label">Esprit Shonnen × MS — Annonce équipe</div>
-    <div class="cv-item__play">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+  <a class="pf-item" href="project.html?id=esprit-shonnen-1">
+    <img class="pf-item__img" src="https://img.youtube.com/vi/PbMsGPyduQM/maxresdefault.jpg" alt="Esprit Shonnen × MS Trailer 1">
+    <div class="pf-item__overlay">
+      <div class="pf-item__label">
+        <span class="pf-item__name">Esprit Shonnen × MS — Annonce équipe</span>
+        <span class="pf-item__sep">—</span>
+        <span class="pf-item__cat">Teaser Esport</span>
+      </div>
     </div>
-  </div>
+  </a>
 
-  <div class="cv-item"
-       data-video="https://www.youtube.com/embed/LAPCpUFXdSo?rel=0&modestbranding=1&autoplay=1"
-       data-title="Esprit Shonnen × MS — Roster reveal">
-    <img class="cv-item__thumb" src="https://img.youtube.com/vi/LAPCpUFXdSo/maxresdefault.jpg" alt="Esprit Shonnen × MS Trailer 2">
-    <div class="cv-item__overlay"></div>
-    <div class="cv-item__label">Esprit Shonnen × MS — Roster reveal</div>
-    <div class="cv-item__play">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+  <a class="pf-item" href="project.html?id=esprit-shonnen-2">
+    <img class="pf-item__img" src="https://img.youtube.com/vi/LAPCpUFXdSo/maxresdefault.jpg" alt="Esprit Shonnen × MS Roster">
+    <div class="pf-item__overlay">
+      <div class="pf-item__label">
+        <span class="pf-item__name">Esprit Shonnen × MS — Roster reveal</span>
+        <span class="pf-item__sep">—</span>
+        <span class="pf-item__cat">Teaser Esport</span>
+      </div>
     </div>
-  </div>
+  </a>
 
-  <div class="cv-item"
-       data-video="https://www.youtube.com/embed/s_B9nzIBlTk?rel=0&modestbranding=1&autoplay=1"
-       data-title="Galions — Annonce Roster 2025">
-    <img class="cv-item__thumb" src="https://img.youtube.com/vi/s_B9nzIBlTk/maxresdefault.jpg" alt="Galions Roster 2025">
-    <div class="cv-item__overlay"></div>
-    <div class="cv-item__label">Galions — Annonce Roster 2025</div>
-    <div class="cv-item__play">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+  <a class="pf-item" href="project.html?id=galions-2025">
+    <img class="pf-item__img" src="https://img.youtube.com/vi/s_B9nzIBlTk/maxresdefault.jpg" alt="Galions Roster 2025">
+    <div class="pf-item__overlay">
+      <div class="pf-item__label">
+        <span class="pf-item__name">Galions — Annonce Roster 2025</span>
+        <span class="pf-item__sep">—</span>
+        <span class="pf-item__cat">Teaser Esport</span>
+      </div>
     </div>
-  </div>
+  </a>
 
-  <div class="cv-item"
-       data-video="https://www.youtube.com/embed/hg8AyfjLiSM?rel=0&modestbranding=1&autoplay=1"
-       data-title="King Con — Trailer d'annonce">
-    <img class="cv-item__thumb" src="https://img.youtube.com/vi/hg8AyfjLiSM/maxresdefault.jpg" alt="King Con">
-    <div class="cv-item__overlay"></div>
-    <div class="cv-item__label">King Con — Convention Smash Bros</div>
-    <div class="cv-item__play">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+  <a class="pf-item" href="project.html?id=king-con">
+    <img class="pf-item__img" src="https://img.youtube.com/vi/hg8AyfjLiSM/maxresdefault.jpg" alt="King Con">
+    <div class="pf-item__overlay">
+      <div class="pf-item__label">
+        <span class="pf-item__name">King Con — Convention Smash Bros</span>
+        <span class="pf-item__sep">—</span>
+        <span class="pf-item__cat">Événementiel</span>
+      </div>
     </div>
-  </div>
+  </a>
 
-  <div class="cv-item"
-       data-video="https://www.youtube.com/embed/Oa51i4xSz9c?rel=0&modestbranding=1&autoplay=1"
-       data-title="Galions — Annonce Roster 2026">
-    <img class="cv-item__thumb" src="https://img.youtube.com/vi/Oa51i4xSz9c/maxresdefault.jpg" alt="Galions Roster 2026">
-    <div class="cv-item__overlay"></div>
-    <div class="cv-item__label">Galions — Annonce Roster 2026</div>
-    <div class="cv-item__play">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+  <a class="pf-item" href="project.html?id=galions-2026">
+    <img class="pf-item__img" src="https://img.youtube.com/vi/Oa51i4xSz9c/maxresdefault.jpg" alt="Galions Roster 2026">
+    <div class="pf-item__overlay">
+      <div class="pf-item__label">
+        <span class="pf-item__name">Galions — Annonce Roster 2026</span>
+        <span class="pf-item__sep">—</span>
+        <span class="pf-item__cat">Teaser Esport</span>
+      </div>
     </div>
-  </div>
+  </a>
 
-</div>
-
-<!-- Modal -->
-<div class="cv-modal-backdrop" id="cv-modal">
-  <div class="cv-modal">
-    <button class="cv-modal__close" id="cv-modal-close">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      Fermer
-    </button>
-    <div class="cv-modal__video" id="cv-modal-video"></div>
-    <div class="cv-modal__info">
-      <div class="cv-modal__title" id="cv-modal-title"></div>
-      <a href="contact.html" class="btn btn--primary btn--sm">Projet similaire ?</a>
-    </div>
-  </div>
 </div>
 
 <footer class="footer" style="border-top:1px solid var(--border);">
@@ -291,30 +248,6 @@
   </div>
 </footer>
 
-<script>
-  const modal = document.getElementById('cv-modal');
-  const modalVideo = document.getElementById('cv-modal-video');
-  const modalTitle = document.getElementById('cv-modal-title');
-
-  document.querySelectorAll('.cv-item').forEach(item => {
-    item.addEventListener('click', () => {
-      modalTitle.textContent = item.dataset.title;
-      modalVideo.innerHTML = `<iframe src="${item.dataset.video}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-      modal.classList.add('open');
-      document.body.style.overflow = 'hidden';
-    });
-  });
-
-  function closeModal() {
-    modal.classList.remove('open');
-    modalVideo.innerHTML = '';
-    document.body.style.overflow = '';
-  }
-
-  document.getElementById('cv-modal-close').addEventListener('click', closeModal);
-  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-</script>
 <script src="js/main.js"></script>
 </body>
 </html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projet — 4 Mousquetaires Studio</title>
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    body { background: var(--bg); }
+
+    /* Hero thumbnail */
+    .proj-hero {
+      width: 100%;
+      aspect-ratio: 21/8;
+      position: relative;
+      overflow: hidden;
+      background: #000;
+    }
+    .proj-hero__img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      filter: brightness(0.6);
+    }
+
+    /* Header info */
+    .proj-info {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 3rem 2rem 0;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 2.5rem;
+    }
+    .proj-info__cat {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-subtle);
+      margin-bottom: 0.75rem;
+    }
+    .proj-info__title {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 3vw, 2.6rem);
+      font-weight: 700;
+      margin: 0 0 1rem;
+      line-height: 1.15;
+    }
+    .proj-info__meta {
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      color: var(--text-subtle);
+      text-transform: uppercase;
+    }
+    .proj-info__meta strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+    .proj-info__meta span { margin: 0 0.75rem; opacity: 0.3; }
+
+    /* Video */
+    .proj-video {
+      max-width: 860px;
+      margin: 2.5rem auto;
+      padding: 0 2rem;
+    }
+    .proj-video__embed {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #000;
+    }
+    .proj-video__embed iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* Sections */
+    .proj-section {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2rem 2rem 0;
+    }
+    .proj-section + .proj-section { padding-top: 2rem; }
+    .proj-section__title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-subtle);
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .proj-section__text {
+      color: var(--text-muted);
+      line-height: 1.8;
+      font-size: 0.95rem;
+    }
+    .proj-section__tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+    /* Related projects */
+    .proj-related {
+      max-width: 860px;
+      margin: 3rem auto;
+      padding: 0 2rem 4rem;
+    }
+    .proj-related__title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-subtle);
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .proj-related__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+    }
+    .proj-related__item {
+      position: relative;
+      aspect-ratio: 16/9;
+      overflow: hidden;
+      cursor: pointer;
+      display: block;
+      text-decoration: none;
+      background: #000;
+    }
+    .proj-related__item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.65);
+      transition: transform 0.5s ease, filter 0.35s ease;
+    }
+    .proj-related__item:hover img {
+      transform: scale(1.05);
+      filter: brightness(0.35);
+    }
+    .proj-related__label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .proj-related__item:hover .proj-related__label { opacity: 1; }
+    .proj-related__label span {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #fff;
+    }
+
+    /* Back link */
+    .proj-back {
+      position: fixed;
+      top: calc(var(--nav-h) + 1rem);
+      left: 2rem;
+      z-index: 50;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: color 0.2s;
+    }
+    .proj-back:hover { color: #fff; }
+
+    @media (max-width: 768px) {
+      .proj-hero { aspect-ratio: 16/7; }
+      .proj-related__grid { grid-template-columns: 1fr 1fr; }
+      .proj-back { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav scrolled" id="nav">
+  <div class="nav__inner">
+    <a href="index.html" class="nav__logo">
+      <span class="nav__logo-icon">4M</span>
+      4 Mousquetaires
+    </a>
+    <ul class="nav__links">
+      <li><a href="services.html" class="nav__link">Services</a></li>
+      <li><a href="portfolio.html" class="nav__link">Réalisations</a></li>
+      <li><a href="about.html" class="nav__link">À propos</a></li>
+      <li><a href="blog.html" class="nav__link">Blog</a></li>
+      <li><a href="career.html" class="nav__link">Talents</a></li>
+      <li class="nav__cta"><a href="contact.html" class="btn btn--primary btn--sm">Parlons de votre projet</a></li>
+    </ul>
+    <button class="nav__burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+  <div class="nav__mobile">
+    <a href="services.html" class="nav__mobile-link">Services</a>
+    <a href="portfolio.html" class="nav__mobile-link">Réalisations</a>
+    <a href="about.html" class="nav__mobile-link">À propos</a>
+    <a href="blog.html" class="nav__mobile-link">Blog</a>
+    <a href="career.html" class="nav__mobile-link">Talents</a>
+    <a href="contact.html" class="btn btn--primary">Parlons de votre projet</a>
+  </div>
+</nav>
+
+<a href="portfolio.html" class="proj-back">← Réalisations</a>
+
+<!-- Filled by JS -->
+<div id="proj-hero" class="proj-hero" style="margin-top:var(--nav-h);">
+  <img class="proj-hero__img" id="proj-hero-img" src="" alt="">
+</div>
+
+<div class="proj-info">
+  <div class="proj-info__cat" id="proj-cat"></div>
+  <h1 class="proj-info__title" id="proj-title"></h1>
+  <div class="proj-info__meta" id="proj-meta"></div>
+</div>
+
+<div class="proj-video">
+  <div class="proj-video__embed" id="proj-video"></div>
+</div>
+
+<div class="proj-section">
+  <div class="proj-section__title">Description</div>
+  <p class="proj-section__text" id="proj-desc"></p>
+</div>
+
+<div class="proj-section" style="margin-bottom:2rem;">
+  <div class="proj-section__title">Tags</div>
+  <div class="proj-section__tags" id="proj-tags"></div>
+</div>
+
+<div class="proj-related">
+  <div class="proj-related__title">Autres projets</div>
+  <div class="proj-related__grid" id="proj-related"></div>
+</div>
+
+<footer class="footer" style="border-top:1px solid var(--border);">
+  <div class="container">
+    <div class="footer__bottom">
+      <span class="footer__copy">© 2025 4 Mousquetaires. Tous droits réservés.</span>
+      <div class="flex gap-md">
+        <a href="mentions-legales.html" class="footer__copy" style="text-decoration:underline;text-underline-offset:3px;">Mentions légales</a>
+        <a href="contact.html" class="btn btn--primary btn--sm">Parlons de votre projet</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+const PROJECTS = {
+  'decimus-tcg': {
+    title: 'Decimus TCG — Trailer Clans 2023',
+    cat: "Trailer d'annonce",
+    client: 'Decimus TCG',
+    director: '4 Mousquetaires',
+    desc: "Trailer d'annonce pour le jeu de cartes stratégique Decimus. Présentation du concept du jeu et des quatre clans en 90 secondes. Réalisé en animation 2D avec compositing motion design. Premier projet externe du studio.",
+    tags: ['Animation 2D', 'Motion Design', 'Direction artistique', 'Jeu de cartes'],
+    video: 'ICbvqYJVDno',
+  },
+  'esprit-shonnen-1': {
+    title: 'Esprit Shonnen × MS — Annonce équipe',
+    cat: 'Teaser Esport',
+    client: 'Esprit Shonnen / MS Esport',
+    director: '4 Mousquetaires',
+    desc: "Premier trailer pour l'annonce de la création d'une nouvelle équipe esport née de la collaboration entre Esprit Shonnen et MS. Mise en scène cinématique avec révélation progressive des joueurs.",
+    tags: ['Teaser Esport', 'Annonce équipe', 'Sound Design', 'Motion Design'],
+    video: 'PbMsGPyduQM',
+  },
+  'esprit-shonnen-2': {
+    title: 'Esprit Shonnen × MS — Roster reveal',
+    cat: 'Teaser Esport',
+    client: 'Esprit Shonnen / MS Esport',
+    director: '4 Mousquetaires',
+    desc: "Deuxième trailer pour la même collaboration, avec une approche plus dynamique orientée réseaux sociaux. Format court pensé pour TikTok et Twitter, avec le roster complet.",
+    tags: ['Teaser Esport', 'Réseaux sociaux', 'Format court', 'Motion Graphics'],
+    video: 'LAPCpUFXdSo',
+  },
+  'galions-2025': {
+    title: 'Galions — Annonce Roster 2025',
+    cat: 'Teaser Esport',
+    client: 'Galions Esport',
+    director: '4 Mousquetaires',
+    desc: "Trailer d'annonce du roster 2025 pour l'équipe Galions. Identité visuelle maritime revisitée en motion design gaming. Ambiance épique, cut sur la musique, reveal joueur par joueur.",
+    tags: ['Motion Branding', 'Reveal roster', 'Direction artistique', 'Teaser Esport'],
+    video: 's_B9nzIBlTk',
+  },
+  'king-con': {
+    title: 'King Con — Trailer d\'annonce',
+    cat: 'Événementiel',
+    client: 'King Con',
+    director: '4 Mousquetaires',
+    desc: "Trailer officiel pour l'annonce de la King Con, convention dédiée à la scène compétitive Smash Bros France. Ambiance électrique, identité gaming forte, musique énergique.",
+    tags: ['Événementiel', 'Motion Design', 'Community gaming', 'Smash Bros'],
+    video: 'hg8AyfjLiSM',
+  },
+  'galions-2026': {
+    title: 'Galions — Annonce Roster 2026',
+    cat: 'Teaser Esport',
+    client: 'Galions Esport',
+    director: '4 Mousquetaires',
+    desc: "Deuxième trailer de roster pour Galions, saison 2026. Évolution de l'identité visuelle avec de nouveaux effets et une énergie encore plus affirmée. La continuité de la collaboration a permis d'aller plus loin artistiquement.",
+    tags: ['Motion Branding', 'Saison 2', 'Animation', 'Identité visuelle'],
+    video: 'Oa51i4xSz9c',
+  },
+};
+
+function thumb(id) {
+  return `https://img.youtube.com/vi/${id}/maxresdefault.jpg`;
+}
+
+const params = new URLSearchParams(window.location.search);
+const id = params.get('id');
+const proj = PROJECTS[id];
+
+if (!proj) {
+  window.location.href = 'portfolio.html';
+} else {
+  document.title = proj.title + ' — 4 Mousquetaires';
+
+  document.getElementById('proj-hero-img').src = thumb(proj.video);
+  document.getElementById('proj-hero-img').alt = proj.title;
+  document.getElementById('proj-cat').textContent = proj.cat;
+  document.getElementById('proj-title').textContent = proj.title;
+  document.getElementById('proj-meta').innerHTML =
+    `Studio <strong>4 Mousquetaires</strong><span>|</span>Client <strong>${proj.client}</strong>`;
+  document.getElementById('proj-video').innerHTML =
+    `<iframe src="https://www.youtube.com/embed/${proj.video}?rel=0&modestbranding=1" allow="encrypted-media" allowfullscreen></iframe>`;
+  document.getElementById('proj-desc').textContent = proj.desc;
+
+  const tagsEl = document.getElementById('proj-tags');
+  proj.tags.forEach(t => {
+    const span = document.createElement('span');
+    span.className = 'badge badge--subtle';
+    span.textContent = t;
+    tagsEl.appendChild(span);
+  });
+
+  // Related projects (all except current)
+  const relEl = document.getElementById('proj-related');
+  Object.entries(PROJECTS).filter(([k]) => k !== id).slice(0, 3).forEach(([k, p]) => {
+    relEl.innerHTML += `
+      <a class="proj-related__item" href="project.html?id=${k}">
+        <img src="${thumb(p.video)}" alt="${p.title}">
+        <div class="proj-related__label"><span>${p.title}</span></div>
+      </a>`;
+  });
+}
+</script>
+<script src="js/main.js"></script>
+</body>
+</html>
