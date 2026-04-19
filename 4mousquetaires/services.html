@@ -168,67 +168,17 @@
 </section>
 
 <!-- Service 3 -->
-<section class="section" id="motion-design">
+<section class="section" id="animation-2d-3d">
   <div class="container">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;">
       <div class="reveal">
         <span class="label">03</span>
-        <h2 style="margin:0.75rem 0;">Motion Design</h2>
-        <p style="color:var(--text-muted);margin-bottom:1.5rem;line-height:1.7;">
-          Logo animé, habillage broadcast, transitions, intros/outros, overlays Twitch — tout ce qui donne une identité visuelle cohérente en mouvement. Que ce soit pour YouTube, Twitch ou une présentation.
-        </p>
-        <p style="color:var(--text-muted);margin-bottom:2rem;line-height:1.7;">
-          After Effects, Cinema 4D, Blender. On choisit l'outil en fonction du résultat attendu, pas l'inverse.
-        </p>
-        <div style="margin-bottom:2rem;">
-          <h4 style="margin-bottom:0.75rem;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);">Formats courants</h4>
-          <div class="tags">
-            <span class="badge badge--subtle">Logo animé</span>
-            <span class="badge badge--subtle">Intro / Outro</span>
-            <span class="badge badge--subtle">Habillage broadcast</span>
-            <span class="badge badge--subtle">Overlays Twitch</span>
-            <span class="badge badge--subtle">Transitions</span>
-            <span class="badge badge--subtle">Lower thirds</span>
-          </div>
-        </div>
-        <a href="contact.html" class="btn btn--primary">Demander un devis</a>
-      </div>
-      <div class="reveal reveal--delay-1">
-        <div style="aspect-ratio:16/9;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;">
-          <div class="video-placeholder">
-            <div class="video-placeholder__label">
-              <span>✨</span>
-              <span>Exemple motion design</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Service 4 -->
-<section class="section" id="animation-2d-3d" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
-  <div class="container">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;">
-      <div class="reveal">
-        <div style="aspect-ratio:16/9;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;">
-          <div class="video-placeholder">
-            <div class="video-placeholder__label">
-              <span>🎨</span>
-              <span>Exemple animation 2D / 3D</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="reveal reveal--delay-1">
-        <span class="label">04</span>
         <h2 style="margin:0.75rem 0;">Animation 2D / 3D</h2>
         <p style="color:var(--text-muted);margin-bottom:1.5rem;line-height:1.7;">
           Personnages, environnements, séquences d'intro, cinématiques courtes. On maîtrise l'animation 2D frame-by-frame et riggée (Spine2D, Toon Boom) autant que la 3D stylisée (Blender, C4D).
         </p>
         <p style="color:var(--text-muted);margin-bottom:2rem;line-height:1.7;">
-          Ideal pour les jeux indépendants qui veulent un trailer animé sans budget AAA. On optimise la production pour tenir dans votre enveloppe.
+          Idéal pour les jeux indépendants qui veulent un trailer animé sans budget AAA. On optimise la production pour tenir dans votre enveloppe.
         </p>
         <div style="margin-bottom:2rem;">
           <h4 style="margin-bottom:0.75rem;font-size:0.9rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);">Outils</h4>
@@ -241,6 +191,17 @@
           </div>
         </div>
         <a href="contact.html" class="btn btn--primary">Demander un devis</a>
+      </div>
+      <div class="reveal reveal--delay-1">
+        <div style="aspect-ratio:16/9;border-radius:var(--r-lg);overflow:hidden;position:relative;background:#000;" id="p3-wrap">
+          <iframe
+            id="p3-yt"
+            src="https://www.youtube.com/embed/yom9XcfCbac?enablejsapi=1&mute=1&controls=0&loop=1&playlist=yom9XcfCbac&rel=0&modestbranding=1&playsinline=1"
+            allow="autoplay; encrypted-media"
+            allowfullscreen
+            style="position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;"
+          ></iframe>
+        </div>
       </div>
     </div>
   </div>
@@ -427,6 +388,29 @@ function onYouTubeIframeAPIReady() {
 
 function svPlay(n)  { if (svPlayers[n]) { svFlash(n, 350); svPlayers[n].playVideo(); } }
 function svPause(n) { if (svPlayers[n]) { svFlash(n, 350); svPlayers[n].pauseVideo(); } }
+
+// Autoplay section 03 video when it enters viewport
+(function() {
+  var p3 = document.getElementById('p3-wrap');
+  if (!p3) return;
+  var p3Player = null;
+  var p3Started = false;
+  var tag = document.createElement('script');
+  // YT API already loaded above — just use onYouTubeIframeAPIReady via iframe src
+  // Use IntersectionObserver to trigger play
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      var iframe = document.getElementById('p3-yt');
+      if (!iframe || !iframe.contentWindow) return;
+      if (entry.isIntersecting) {
+        iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+      } else {
+        iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+      }
+    });
+  }, { threshold: 0.3 });
+  obs.observe(p3);
+})();
 </script>
 <script src="js/main.js"></script>
 </body>
