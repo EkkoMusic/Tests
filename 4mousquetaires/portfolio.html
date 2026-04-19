@@ -10,42 +10,20 @@
   <style>
     body { background: var(--bg); }
 
-    .pf-header {
-      padding: calc(var(--nav-h) + 1.5rem) 2rem 1.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-    .pf-header h1 {
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-subtle);
-      margin: 0;
-    }
-    .pf-count {
-      font-size: 0.78rem;
-      letter-spacing: 0.08em;
-      color: var(--text-subtle);
-    }
-
     /* Stack */
     .pf-stack {
       max-width: 1400px;
       margin: 0 auto;
-      padding: 0 2rem 5rem;
+      padding: calc(var(--nav-h) + 1.5rem) 2rem 5rem;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 1rem;
     }
 
     .pf-item {
       position: relative;
       width: 100%;
-      aspect-ratio: 21/8;
+      aspect-ratio: 21/6;
       overflow: hidden;
       cursor: pointer;
       background: #000;
@@ -123,8 +101,7 @@
     }
 
     @media (max-width: 768px) {
-      .pf-stack { padding: 0 1rem 4rem; }
-      .pf-header { padding: calc(var(--nav-h) + 1rem) 1rem 1rem; }
+      .pf-stack { padding: calc(var(--nav-h) + 1rem) 1rem 4rem; }
       .pf-item { aspect-ratio: 16/7; }
       .pf-item__label { opacity: 1; transform: none; }
     }
@@ -160,11 +137,6 @@
     <a href="contact.html" class="btn btn--primary">Parlons de votre projet</a>
   </div>
 </nav>
-
-<div class="pf-header">
-  <h1>Réalisations</h1>
-  <span class="pf-count">6 projets</span>
-</div>
 
 <div class="pf-stack">
 
