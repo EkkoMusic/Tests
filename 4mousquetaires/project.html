@@ -119,6 +119,17 @@
       transition: background 0.2s, transform 0.15s;
     }
     .proj-player__btn:hover { background: rgba(15,18,21,0.98); transform: scale(1.08); }
+    /* Flash cover — hides YouTube overlay during API calls */
+    .proj-player__cover {
+      position: absolute;
+      inset: 0;
+      background: #000;
+      opacity: 0;
+      z-index: 6;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+    }
+    .proj-player__cover.active { opacity: 1; }
     /* Progress bar */
     .proj-player__progress {
       position: absolute;
@@ -301,6 +312,8 @@
     </div>
     <!-- YT API injects iframe here -->
     <div id="yt-player"></div>
+    <!-- Flash cover -->
+    <div class="proj-player__cover" id="player-cover"></div>
     <!-- Progress bar -->
     <div class="proj-player__progress" id="player-progress">
       <div class="proj-player__progress-fill" id="player-progress-fill"></div>
@@ -450,6 +463,12 @@ if (!proj) {
   var pauseBtn    = document.getElementById('player-pause-btn');
   var progressBar = document.getElementById('player-progress');
   var progressFill= document.getElementById('player-progress-fill');
+  var coverEl     = document.getElementById('player-cover');
+
+  function flashCover(ms) {
+    coverEl.classList.add('active');
+    setTimeout(function () { coverEl.classList.remove('active'); }, ms || 350);
+  }
 
   var tag = document.createElement('script');
   tag.src = 'https://www.youtube.com/iframe_api';
@@ -483,10 +502,10 @@ if (!proj) {
   };
 
   playBtn.addEventListener('click', function () {
-    if (ytPlayer) ytPlayer.playVideo();
+    if (ytPlayer) { flashCover(350); ytPlayer.playVideo(); }
   });
   pauseBtn.addEventListener('click', function () {
-    if (ytPlayer) ytPlayer.pauseVideo();
+    if (ytPlayer) { flashCover(350); ytPlayer.pauseVideo(); }
   });
 
   // Click on progress bar to seek
@@ -494,6 +513,7 @@ if (!proj) {
     if (!ytPlayer || !ytPlayer.getDuration) return;
     var rect = progressBar.getBoundingClientRect();
     var pct  = (e.clientX - rect.left) / rect.width;
+    flashCover(400);
     ytPlayer.seekTo(ytPlayer.getDuration() * pct, true);
     progressFill.style.width = (pct * 100) + '%';
   });
