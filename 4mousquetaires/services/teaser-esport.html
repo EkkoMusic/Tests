@@ -60,12 +60,19 @@
         </div>
       </div>
       <div class="reveal reveal--delay-1">
-        <div style="aspect-ratio:16/9;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;">
-          <div class="video-placeholder">
-            <div class="video-placeholder__label">
-              <span>⚡</span>
-              <span>Showreel teasers esport</span>
-            </div>
+        <div style="aspect-ratio:16/9;border-radius:var(--r-xl);overflow:hidden;position:relative;background:#000;">
+          <div id="svc-yt-player"></div>
+          <div id="svc-cover" style="position:absolute;inset:0;background:#000;opacity:0;z-index:6;pointer-events:none;transition:opacity 0.4s ease;"></div>
+          <div id="svc-poster" style="position:absolute;inset:0;z-index:2;transition:opacity 0.4s ease;">
+            <img src="https://img.youtube.com/vi/Oa51i4xSz9c/maxresdefault.jpg" alt="Galions Roster 2026" style="width:100%;height:100%;object-fit:cover;display:block;">
+          </div>
+          <div style="position:absolute;bottom:1rem;right:1rem;display:flex;gap:0.5rem;z-index:10;">
+            <button id="svc-play-btn" onclick="svcPlay()" style="width:48px;height:48px;border-radius:50%;border:none;background:rgba(15,18,21,0.82);backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+            </button>
+            <button id="svc-pause-btn" onclick="svcPause()" style="width:48px;height:48px;border-radius:50%;border:none;background:rgba(15,18,21,0.82);backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:none;align-items:center;justify-content:center;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            </button>
           </div>
         </div>
       </div>
@@ -173,6 +180,42 @@
   </div>
 </footer>
 
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+var svcPlayer = null;
+var svcCover  = document.getElementById('svc-cover');
+var svcPoster = document.getElementById('svc-poster');
+var svcPlayBtn  = document.getElementById('svc-play-btn');
+var svcPauseBtn = document.getElementById('svc-pause-btn');
+
+function svcFlash(ms) {
+  svcCover.style.transition = 'none';
+  svcCover.style.opacity = '1';
+  setTimeout(function() {
+    svcCover.style.transition = 'opacity 0.4s ease';
+    svcCover.style.opacity = '0';
+  }, ms || 350);
+}
+
+function onYouTubeIframeAPIReady() {
+  svcPlayer = new YT.Player('svc-yt-player', {
+    videoId: 'Oa51i4xSz9c',
+    playerVars: { controls: 0, rel: 0, modestbranding: 1, showinfo: 0, iv_load_policy: 3, playsinline: 1 },
+    events: {
+      onStateChange: function(e) {
+        var playing = e.data === YT.PlayerState.PLAYING;
+        svcPlayBtn.style.display  = playing ? 'none' : 'flex';
+        svcPauseBtn.style.display = playing ? 'flex' : 'none';
+        if (playing) { svcPoster.style.opacity = '0'; svcPoster.style.pointerEvents = 'none'; }
+        if (e.data === YT.PlayerState.ENDED) { svcFlash(350); setTimeout(function(){ svcPlayer.playVideo(); }, 100); }
+      }
+    }
+  });
+}
+
+function svcPlay()  { if (svcPlayer) { svcFlash(350); svcPlayer.playVideo(); } }
+function svcPause() { if (svcPlayer) { svcFlash(350); svcPlayer.pauseVideo(); } }
+</script>
 <script src="../js/main.js"></script>
 </body>
 </html>
