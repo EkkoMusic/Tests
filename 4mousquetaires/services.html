@@ -81,29 +81,12 @@
         </div>
         <div class="btn-group">
           <a href="contact.html" class="btn btn--primary">Demander un devis</a>
-          <a href="portfolio.html" class="btn btn--ghost">Voir un exemple</a>
+          <a href="project.html?id=decimus-tcg" class="btn btn--ghost">Voir un exemple</a>
         </div>
       </div>
       <div class="reveal reveal--delay-1">
-        <div style="aspect-ratio:16/9;border-radius:var(--r-lg);overflow:hidden;position:relative;background:#000;">
-          <div id="p1-yt"></div>
-          <div id="p1-cover" style="position:absolute;inset:0;background:#000;opacity:0;z-index:6;pointer-events:none;transition:opacity 0.4s ease;"></div>
-          <div id="p1-poster" style="position:absolute;inset:0;z-index:2;transition:opacity 0.4s ease;">
-            <img src="https://img.youtube.com/vi/ICbvqYJVDno/maxresdefault.jpg" alt="Decimus TCG" style="width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.1);">
-          </div>
-          <div style="position:absolute;bottom:0.75rem;right:0.75rem;display:flex;gap:0.5rem;z-index:10;">
-            <button id="p1-play" onclick="svPlay(1)" style="width:44px;height:44px;border-radius:50%;border:none;background:rgba(15,18,21,0.82);backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
-            </button>
-            <button id="p1-pause" onclick="svPause(1)" style="width:44px;height:44px;border-radius:50%;border:none;background:rgba(15,18,21,0.82);backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:none;align-items:center;justify-content:center;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-            </button>
-          </div>
-        </div>
-        <div class="tags" style="margin-top:1rem;">
-          <span class="badge badge--subtle">Decimus TCG</span>
-          <span class="badge badge--subtle">Galions Esport</span>
-          <span class="badge badge--subtle">King Con</span>
+        <div style="aspect-ratio:16/9;border-radius:var(--r-lg);overflow:hidden;background:#000;">
+          <img src="assets/images/barrage.jpg" alt="Exemple Trailer d'annonce" style="width:100%;height:100%;object-fit:cover;display:block;">
         </div>
       </div>
     </div>
@@ -115,20 +98,8 @@
   <div class="container">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;">
       <div class="reveal">
-        <div style="aspect-ratio:16/9;border-radius:var(--r-lg);overflow:hidden;position:relative;background:#000;">
-          <div id="p2-yt"></div>
-          <div id="p2-cover" style="position:absolute;inset:0;background:#000;opacity:0;z-index:6;pointer-events:none;transition:opacity 0.4s ease;"></div>
-          <div id="p2-poster" style="position:absolute;inset:0;z-index:2;transition:opacity 0.4s ease;">
-            <img src="https://img.youtube.com/vi/Oa51i4xSz9c/maxresdefault.jpg" alt="Galions 2026" style="width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.1);">
-          </div>
-          <div style="position:absolute;bottom:0.75rem;right:0.75rem;display:flex;gap:0.5rem;z-index:10;">
-            <button id="p2-play" onclick="svPlay(2)" style="width:44px;height:44px;border-radius:50%;border:none;background:rgba(15,18,21,0.82);backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
-            </button>
-            <button id="p2-pause" onclick="svPause(2)" style="width:44px;height:44px;border-radius:50%;border:none;background:rgba(15,18,21,0.82);backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:none;align-items:center;justify-content:center;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-            </button>
-          </div>
+        <div style="aspect-ratio:16/9;border-radius:var(--r-lg);overflow:hidden;background:#000;">
+          <img src="assets/images/omon.jpg" alt="Exemple Teaser Esport" style="width:100%;height:100%;object-fit:cover;display:block;">
         </div>
       </div>
       <div class="reveal reveal--delay-1">
@@ -161,7 +132,10 @@
             </li>
           </ul>
         </div>
-        <a href="contact.html" class="btn btn--primary">Demander un devis</a>
+        <div class="btn-group">
+          <a href="contact.html" class="btn btn--primary">Demander un devis</a>
+          <a href="project.html?id=galions-2026" class="btn btn--ghost">Voir un exemple</a>
+        </div>
       </div>
     </div>
   </div>
@@ -348,66 +322,30 @@
 
 <script src="https://www.youtube.com/iframe_api"></script>
 <script>
-var svPlayers = {};
-var svVideos  = { 1: 'ICbvqYJVDno', 2: 'Oa51i4xSz9c' };
-
-function svFlash(n, ms) {
-  var c = document.getElementById('p'+n+'-cover');
-  c.style.transition = 'none'; c.style.opacity = '1';
-  setTimeout(function() { c.style.transition = 'opacity 0.4s ease'; c.style.opacity = '0'; }, ms || 350);
-}
+var p3Player;
 
 function onYouTubeIframeAPIReady() {
-  // Players 1 & 2 — play/pause manual
-  [1, 2].forEach(function(n) {
-    svPlayers[n] = new YT.Player('p'+n+'-yt', {
-      videoId: svVideos[n],
-      playerVars: { controls: 0, rel: 0, modestbranding: 1, showinfo: 0, iv_load_policy: 3, playsinline: 1 },
-      events: {
-        onStateChange: (function(n) { return function(e) {
-          var playing = e.data === YT.PlayerState.PLAYING;
-          document.getElementById('p'+n+'-play').style.display  = playing ? 'none' : 'flex';
-          document.getElementById('p'+n+'-pause').style.display = playing ? 'flex' : 'none';
-          if (playing) {
-            var p = document.getElementById('p'+n+'-poster');
-            p.style.opacity = '0'; p.style.pointerEvents = 'none';
-          }
-          if (e.data === YT.PlayerState.ENDED) {
-            svFlash(n, 350);
-            setTimeout(function() { svPlayers[n].playVideo(); }, 100);
-          }
-        };})(n)
-      }
-    });
-  });
-
-  // Player 3 — autoplay muted, loop, cover removed on first play
-  svPlayers[3] = new YT.Player('p3-yt', {
+  p3Player = new YT.Player('p3-yt', {
     videoId: 'yom9XcfCbac',
     playerVars: { controls: 0, rel: 0, modestbranding: 1, showinfo: 0, iv_load_policy: 3, playsinline: 1, mute: 1, loop: 1, playlist: 'yom9XcfCbac' },
     events: {
       onReady: function() {
-        svPlayers[3].mute();
-        // Start watching viewport
+        p3Player.mute();
         var wrap = document.getElementById('p3-wrap');
         if (!wrap) return;
         new IntersectionObserver(function(entries) {
-          if (entries[0].isIntersecting) svPlayers[3].playVideo();
-          else svPlayers[3].pauseVideo();
+          if (entries[0].isIntersecting) p3Player.playVideo();
+          else p3Player.pauseVideo();
         }, { threshold: 0.3 }).observe(wrap);
       },
       onStateChange: function(e) {
         if (e.data === YT.PlayerState.PLAYING) {
-          var cover = document.getElementById('p3-cover');
-          cover.style.opacity = '0';
+          document.getElementById('p3-cover').style.opacity = '0';
         }
       }
     }
   });
 }
-
-function svPlay(n)  { if (svPlayers[n]) { svFlash(n, 350); svPlayers[n].playVideo(); } }
-function svPause(n) { if (svPlayers[n]) { svFlash(n, 350); svPlayers[n].pauseVideo(); } }
 </script>
 <script src="js/main.js"></script>
 </body>
