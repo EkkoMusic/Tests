@@ -169,7 +169,7 @@
       <div class="reveal reveal--delay-1">
         <div style="aspect-ratio:16/9;border-radius:var(--r-lg);overflow:hidden;position:relative;background:#000;" id="p3-wrap">
           <div id="p3-yt"></div>
-          <div id="p3-cover" style="position:absolute;inset:0;background:#000;z-index:5;pointer-events:none;transition:opacity 0.6s ease;"></div>
+          <div id="p3-cover" style="position:absolute;inset:0;background:#000;z-index:20;pointer-events:auto;transition:opacity 0.6s ease;"></div>
         </div>
       </div>
     </div>
@@ -339,8 +339,16 @@ function onYouTubeIframeAPIReady() {
         }, { threshold: 0.3 }).observe(wrap);
       },
       onStateChange: function(e) {
+        var cover = document.getElementById('p3-cover');
         if (e.data === YT.PlayerState.PLAYING) {
-          document.getElementById('p3-cover').style.opacity = '0';
+          cover.style.transition = 'opacity 0.6s ease';
+          cover.style.opacity = '0';
+          cover.style.pointerEvents = 'none';
+        } else if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.BUFFERING) {
+          cover.style.transition = 'none';
+          cover.style.opacity = '1';
+          cover.style.pointerEvents = 'auto';
+          setTimeout(function() { cover.style.transition = 'opacity 0.6s ease'; }, 50);
         }
       }
     }
