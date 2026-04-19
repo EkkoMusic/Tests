@@ -158,6 +158,8 @@
         allowfullscreen
         style="position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;"
       ></iframe>
+      <!-- Flash cover -->
+      <div id="team-cover" style="position:absolute;inset:0;background:#000;opacity:0;z-index:6;pointer-events:none;transition:opacity 0.4s ease;"></div>
       <!-- Custom controls -->
       <div style="position:absolute;bottom:1.25rem;right:1.25rem;display:flex;gap:0.75rem;z-index:10;">
         <button id="team-mute-btn" onclick="teamToggleMute()" title="Mute / Unmute" style="width:60px;height:60px;border-radius:50%;border:none;background:rgba(15,18,21,0.80);backdrop-filter:blur(8px);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">
@@ -177,15 +179,34 @@
 var teamPlayer = null;
 var teamMuted = true;
 var teamPlaying = true;
+var teamCover = document.getElementById('team-cover');
+
+function teamFlash(ms) {
+  teamCover.style.transition = 'none';
+  teamCover.style.opacity = '1';
+  setTimeout(function() {
+    teamCover.style.transition = 'opacity 0.4s ease';
+    teamCover.style.opacity = '0';
+  }, ms || 350);
+}
 
 function onYouTubeIframeAPIReady() {
   teamPlayer = new YT.Player('team-yt', {
-    events: { 'onReady': function(e) { e.target.mute(); e.target.playVideo(); } }
+    events: {
+      'onReady': function(e) { e.target.mute(); e.target.playVideo(); },
+      'onStateChange': function(e) {
+        if (e.data === YT.PlayerState.ENDED) {
+          teamFlash(350);
+          setTimeout(function() { teamPlayer.playVideo(); }, 100);
+        }
+      }
+    }
   });
 }
 
 function teamToggleMute() {
   if (!teamPlayer) return;
+  teamFlash(350);
   teamMuted = !teamMuted;
   teamMuted ? teamPlayer.mute() : teamPlayer.unMute();
   document.getElementById('team-icon-muted').style.display = teamMuted ? '' : 'none';
@@ -194,6 +215,7 @@ function teamToggleMute() {
 
 function teamTogglePlay() {
   if (!teamPlayer) return;
+  teamFlash(350);
   teamPlaying = !teamPlaying;
   teamPlaying ? teamPlayer.playVideo() : teamPlayer.pauseVideo();
   document.getElementById('team-icon-pause').style.display = teamPlaying ? '' : 'none';
