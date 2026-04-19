@@ -66,17 +66,59 @@
       margin: 2.5rem auto;
       padding: 0 2rem;
     }
-    .proj-video__embed {
+    .proj-player {
+      position: relative;
       width: 100%;
       aspect-ratio: 16/9;
       background: #000;
+      overflow: hidden;
     }
-    .proj-video__embed iframe {
+    /* Hide all YouTube UI by making iframe pointer-events:none */
+    .proj-player iframe {
       width: 100%;
       height: 100%;
       border: none;
       display: block;
+      pointer-events: none;
     }
+    /* Poster overlay shown before first play */
+    .proj-player__poster {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      transition: opacity 0.4s ease;
+    }
+    .proj-player__poster img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .proj-player__poster.hidden { opacity: 0; pointer-events: none; }
+    /* Custom controls */
+    .proj-player__controls {
+      position: absolute;
+      bottom: 1.25rem;
+      right: 1.25rem;
+      z-index: 10;
+      display: flex;
+      gap: 0.6rem;
+    }
+    .proj-player__btn {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(15,18,21,0.82);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .proj-player__btn:hover { background: rgba(15,18,21,0.98); transform: scale(1.08); }
 
     /* Sections */
     .proj-section {
@@ -231,7 +273,23 @@
 </div>
 
 <div class="proj-video">
-  <div class="proj-video__embed" id="proj-video"></div>
+  <div class="proj-player" id="proj-player">
+    <!-- Poster shown before first play -->
+    <div class="proj-player__poster" id="proj-poster">
+      <img id="proj-poster-img" src="" alt="">
+    </div>
+    <!-- YT API injects iframe here -->
+    <div id="yt-player"></div>
+    <!-- Custom controls -->
+    <div class="proj-player__controls">
+      <button class="proj-player__btn" id="player-play-btn" title="Lecture">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+      </button>
+      <button class="proj-player__btn" id="player-pause-btn" title="Pause" style="display:none;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+      </button>
+    </div>
+  </div>
 </div>
 
 <div class="proj-section">
@@ -338,8 +396,7 @@ if (!proj) {
   document.getElementById('proj-title').textContent = proj.title;
   document.getElementById('proj-meta').innerHTML =
     `Studio <strong>4 Mousquetaires</strong><span>|</span>Client <strong>${proj.client}</strong>`;
-  document.getElementById('proj-video').innerHTML =
-    `<iframe src="https://www.youtube.com/embed/${proj.video}?rel=0&modestbranding=1" allow="encrypted-media" allowfullscreen></iframe>`;
+  document.getElementById('proj-poster-img').src = thumb(proj.video);
   document.getElementById('proj-desc').textContent = proj.desc;
 
   const tagsEl = document.getElementById('proj-tags');
@@ -350,7 +407,7 @@ if (!proj) {
     tagsEl.appendChild(span);
   });
 
-  // Related projects (all except current)
+  // Related projects
   const relEl = document.getElementById('proj-related');
   Object.entries(PROJECTS).filter(([k]) => k !== id).slice(0, 3).forEach(([k, p]) => {
     relEl.innerHTML += `
@@ -358,6 +415,41 @@ if (!proj) {
         <img src="${thumb(p.video)}" alt="${p.title}">
         <div class="proj-related__label"><span>${p.title}</span></div>
       </a>`;
+  });
+
+  // Custom YT player
+  var ytPlayer = null;
+  var posterEl  = document.getElementById('proj-poster');
+  var playBtn   = document.getElementById('player-play-btn');
+  var pauseBtn  = document.getElementById('player-pause-btn');
+
+  var tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+
+  window.onYouTubeIframeAPIReady = function () {
+    ytPlayer = new YT.Player('yt-player', {
+      videoId: proj.video,
+      playerVars: {
+        controls: 0, rel: 0, modestbranding: 1,
+        showinfo: 0, iv_load_policy: 3, playsinline: 1,
+      },
+      events: {
+        onStateChange: function (e) {
+          var playing = e.data === YT.PlayerState.PLAYING;
+          playBtn.style.display  = playing ? 'none' : 'flex';
+          pauseBtn.style.display = playing ? 'flex' : 'none';
+          if (playing) posterEl.classList.add('hidden');
+        }
+      }
+    });
+  };
+
+  playBtn.addEventListener('click', function () {
+    if (ytPlayer) ytPlayer.playVideo();
+  });
+  pauseBtn.addEventListener('click', function () {
+    if (ytPlayer) ytPlayer.pauseVideo();
   });
 }
 </script>
