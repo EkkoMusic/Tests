@@ -194,13 +194,8 @@
       </div>
       <div class="reveal reveal--delay-1">
         <div style="aspect-ratio:16/9;border-radius:var(--r-lg);overflow:hidden;position:relative;background:#000;" id="p3-wrap">
-          <iframe
-            id="p3-yt"
-            src="https://www.youtube.com/embed/yom9XcfCbac?enablejsapi=1&mute=1&controls=0&loop=1&playlist=yom9XcfCbac&rel=0&modestbranding=1&playsinline=1"
-            allow="autoplay; encrypted-media"
-            allowfullscreen
-            style="position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;"
-          ></iframe>
+          <div id="p3-yt"></div>
+          <div id="p3-cover" style="position:absolute;inset:0;background:#000;z-index:5;pointer-events:none;transition:opacity 0.6s ease;"></div>
         </div>
       </div>
     </div>
@@ -363,12 +358,13 @@ function svFlash(n, ms) {
 }
 
 function onYouTubeIframeAPIReady() {
+  // Players 1 & 2 — play/pause manual
   [1, 2].forEach(function(n) {
     svPlayers[n] = new YT.Player('p'+n+'-yt', {
       videoId: svVideos[n],
       playerVars: { controls: 0, rel: 0, modestbranding: 1, showinfo: 0, iv_load_policy: 3, playsinline: 1 },
       events: {
-        onStateChange: function(e) {
+        onStateChange: (function(n) { return function(e) {
           var playing = e.data === YT.PlayerState.PLAYING;
           document.getElementById('p'+n+'-play').style.display  = playing ? 'none' : 'flex';
           document.getElementById('p'+n+'-pause').style.display = playing ? 'flex' : 'none';
@@ -380,37 +376,38 @@ function onYouTubeIframeAPIReady() {
             svFlash(n, 350);
             setTimeout(function() { svPlayers[n].playVideo(); }, 100);
           }
-        }
+        };})(n)
       }
     });
+  });
+
+  // Player 3 — autoplay muted, loop, cover removed on first play
+  svPlayers[3] = new YT.Player('p3-yt', {
+    videoId: 'yom9XcfCbac',
+    playerVars: { controls: 0, rel: 0, modestbranding: 1, showinfo: 0, iv_load_policy: 3, playsinline: 1, mute: 1, loop: 1, playlist: 'yom9XcfCbac' },
+    events: {
+      onReady: function() {
+        svPlayers[3].mute();
+        // Start watching viewport
+        var wrap = document.getElementById('p3-wrap');
+        if (!wrap) return;
+        new IntersectionObserver(function(entries) {
+          if (entries[0].isIntersecting) svPlayers[3].playVideo();
+          else svPlayers[3].pauseVideo();
+        }, { threshold: 0.3 }).observe(wrap);
+      },
+      onStateChange: function(e) {
+        if (e.data === YT.PlayerState.PLAYING) {
+          var cover = document.getElementById('p3-cover');
+          cover.style.opacity = '0';
+        }
+      }
+    }
   });
 }
 
 function svPlay(n)  { if (svPlayers[n]) { svFlash(n, 350); svPlayers[n].playVideo(); } }
 function svPause(n) { if (svPlayers[n]) { svFlash(n, 350); svPlayers[n].pauseVideo(); } }
-
-// Autoplay section 03 video when it enters viewport
-(function() {
-  var p3 = document.getElementById('p3-wrap');
-  if (!p3) return;
-  var p3Player = null;
-  var p3Started = false;
-  var tag = document.createElement('script');
-  // YT API already loaded above — just use onYouTubeIframeAPIReady via iframe src
-  // Use IntersectionObserver to trigger play
-  var obs = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      var iframe = document.getElementById('p3-yt');
-      if (!iframe || !iframe.contentWindow) return;
-      if (entry.isIntersecting) {
-        iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-      } else {
-        iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-      }
-    });
-  }, { threshold: 0.3 });
-  obs.observe(p3);
-})();
 </script>
 <script src="js/main.js"></script>
 </body>
