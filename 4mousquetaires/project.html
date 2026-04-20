@@ -371,6 +371,7 @@ const PROJECTS = {
     desc: "Trailer d'annonce pour le jeu de cartes stratégique Decimus. Présentation du concept du jeu et des quatre clans en 90 secondes. Réalisé en animation 2D avec compositing motion design. Premier projet externe du studio.",
     tags: ['Animation 2D', 'Motion Design', 'Direction artistique', 'Jeu de cartes'],
     video: 'ICbvqYJVDno',
+    hero: 'assets/images/barrage.jpg',
   },
   'esprit-shonnen-1': {
     title: 'Esprit Shonnen × MS — Annonce équipe',
@@ -432,7 +433,7 @@ if (!proj) {
 } else {
   document.title = proj.title + ' — 4 Mousquetaires';
 
-  document.getElementById('proj-hero-img').src = thumb(proj.video);
+  document.getElementById('proj-hero-img').src = proj.hero || thumb(proj.video);
   document.getElementById('proj-hero-img').alt = proj.title;
   document.getElementById('proj-cat').textContent = proj.cat;
   document.getElementById('proj-title').textContent = proj.title;
