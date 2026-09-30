@@ -53,12 +53,12 @@ const [first, ...rest] = site.name.split(' ');
   .hero {
     /* Réglages de la composition photo + nom (ratio photo ≈ 1,25) */
     --photo-w: min(56vw, 300px);
-    --name-x: calc(var(--photo-w) * 0.34); /* le S démarre au niveau du crâne */
+    --name-x: calc(var(--photo-w) * 0.3); /* le S démarre au bord du col */
     /* Mobile : taille calculée pour que le nom (≈ 7,8 × sa taille) tienne sur une ligne. */
     --name-size: min(var(--step-name), calc((100vw - 2 * var(--gutter) - var(--name-x)) / 7.9));
-    /* Descend la photo pour que le haut de la tête (≈ 13 % de sa largeur) arrive
-       juste sous le haut des lettres : le S effleure la tête sans la recouvrir. */
-    --photo-y: max(0px, calc(var(--name-size) * 0.72 - var(--photo-w) * 0.134));
+    /* Le nom est posé sur le col de Sarah : le col se trouve à ≈ 93 % de la
+       largeur de la photo depuis son haut ; on centre la ligne du nom dessus. */
+    --name-y: calc(var(--photo-w) * 0.93 - var(--name-size) * 0.5);
     padding-block: var(--space-s) var(--space-l);
   }
 
@@ -72,7 +72,6 @@ const [first, ...rest] = site.name.split(' ');
 
   .hero__portrait {
     width: var(--photo-w);
-    margin-top: var(--photo-y);
     height: auto;
     z-index: 0;
   }
@@ -81,7 +80,7 @@ const [first, ...rest] = site.name.split(' ');
   .hero__name {
     z-index: 1;
     align-self: start;
-    margin: 0 0 0 var(--name-x);
+    margin: var(--name-y) 0 0 var(--name-x);
     font-family: var(--font-display);
     font-size: var(--name-size);
     line-height: 0.92;
@@ -134,18 +133,15 @@ const [first, ...rest] = site.name.split(' ');
     color: var(--muted);
   }
 
-  /* Tablette et desktop : phrase et filtres à droite de la photo, alignés sur son bas. */
+  /* Tablette et desktop : phrase et filtres sous la photo, sur deux colonnes
+     (le nom, posé sur le col, occupe maintenant la droite de la photo). */
   @media (min-width: 768px) {
     .hero {
       --photo-w: clamp(220px, 26vw, 460px);
-      --name-x: calc(var(--photo-w) * 0.4);
+      --name-x: calc(var(--photo-w) * 0.3);
       --name-size: var(--step-name);
     }
     .hero__stage > .hero__row {
-      grid-area: 1 / 1;
-      z-index: 1;
-      align-self: end;
-      margin: 0 0 0 calc(var(--photo-w) + var(--gutter));
       grid-template-columns: 1fr auto;
       column-gap: var(--gutter);
       align-items: end;
