@@ -32,12 +32,32 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup Pages
+        id: pages
         uses: actions/configure-pages@v5
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: sarah-tamisier/package-lock.json
+      - name: Build Sarah Tamisier portfolio (Astro)
+        working-directory: sarah-tamisier
+        env:
+          SITE_URL: ${{ steps.pages.outputs.origin }}
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}/sarah-tamisier
+        run: |
+          npm ci
+          npm run build
+      - name: Assemble site
+        # 4 Mousquetaires à la racine, portfolio de Sarah dans /sarah-tamisier/
+        run: |
+          mkdir -p _site
+          cp -r 4mousquetaires/. _site/
+          cp -r sarah-tamisier/dist _site/sarah-tamisier
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: '4mousquetaires'
+          path: '_site'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5

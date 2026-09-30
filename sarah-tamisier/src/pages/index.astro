@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import ProjectGrid from '../components/ProjectGrid.astro';
+import AboutPreview from '../components/AboutPreview.astro';
+import Contact from '../components/Contact.astro';
+import { getFeaturedProjects } from '../lib/projects';
+import { site } from '../data/site';
+
+// Filtrage futur : getFeaturedProjects('concept-art') ou getFeaturedProjects('design').
+const projects = await getFeaturedProjects();
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.name,
+  url: new URL(import.meta.env.BASE_URL, Astro.site).href,
+  jobTitle: 'Illustrator, Concept Artist & Designer',
+  sameAs: site.contact.socials.map((s) => s.href).filter(Boolean),
+};
+---
+
+<BaseLayout jsonLd={jsonLd}>
+  <Hero />
+  <ProjectGrid projects={projects} title={site.work.title} />
+  <AboutPreview />
+  <Contact />
+</BaseLayout>

@@ -1,0 +1,68 @@
+---
+import { site } from '../data/site';
+
+const { disciplines, statement } = site.hero;
+const [first, ...rest] = site.name.split(' ');
+---
+
+<section class="hero container" aria-labelledby="hero-title">
+  <h1 id="hero-title" class="hero__name">
+    <span>{first}</span> <span>{rest.join(' ')}</span>
+  </h1>
+
+  <div class="hero__row">
+    {statement && <p class="hero__statement">{statement}</p>}
+    <ul class="hero__disciplines label" role="list" aria-label="Disciplines">
+      {disciplines.map((d) => <li>{d}</li>)}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding-block: clamp(2rem, 1rem + 5vw, 6rem) var(--space-l);
+  }
+
+  .hero__name {
+    font-family: var(--font-display);
+    font-size: var(--step-name);
+    line-height: 0.92;
+    letter-spacing: -0.025em;
+    margin-left: -0.04em; /* aligne optiquement le S sur la marge */
+  }
+  .hero__name span { white-space: nowrap; }
+
+  .hero__row {
+    display: grid;
+    gap: var(--space-m);
+    margin-top: var(--space-m);
+  }
+
+  .hero__statement {
+    font-size: var(--step-1);
+    line-height: 1.35;
+    max-width: 30ch;
+  }
+
+  .hero__disciplines {
+    list-style: none;
+    padding: 0;
+    color: var(--muted);
+    display: grid;
+    gap: 0.35em;
+  }
+  .hero__disciplines li::before {
+    content: '— ';
+    color: var(--accent);
+  }
+
+  @media (min-width: 768px) {
+    .hero__row {
+      grid-template-columns: repeat(12, 1fr);
+      column-gap: var(--gutter);
+      align-items: start;
+    }
+    .hero__statement { grid-column: 1 / span 6; }
+    .hero__disciplines { grid-column: 8 / -1; }
+  }
+</style>

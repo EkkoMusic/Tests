@@ -1,0 +1,81 @@
+---
+import ProjectPreview, { type Layout } from './ProjectPreview.astro';
+import type { Project } from '../lib/projects';
+
+interface Props {
+  projects: Project[];
+  title: string;
+  id?: string;
+}
+
+const { projects, title, id = 'work' } = Astro.props;
+
+// Rythme éditorial : la séquence se répète. Un projet peut l'imposer via `layout`.
+const rhythm: Layout[] = ['full', 'large', 'small', 'wide', 'medium', 'offset'];
+
+// Une image verticale ou carrée sur un emplacement pleine largeur deviendrait
+// démesurée : elle est alors centrée sur une largeur raisonnable.
+function layoutFor(project: Project, i: number): Layout {
+  if (project.data.layout) return project.data.layout;
+  const layout = rhythm[i % rhythm.length];
+  const { width, height } = project.data.thumbnail;
+  const landscape = width / height >= 1.25;
+  return (layout === 'full' || layout === 'wide') && !landscape ? 'centered' : layout;
+}
+---
+
+<section class="work container" id={id} aria-labelledby={`${id}-title`}>
+  <header class="work__head">
+    <h2 id={`${id}-title`} class="label">{title}</h2>
+    <span class="label work__count" aria-hidden="true">({String(projects.length).padStart(2, '0')})</span>
+  </header>
+
+  <div class="work__grid">
+    {projects.map((project, i) => (
+      <ProjectPreview
+        project={project}
+        index={i}
+        layout={layoutFor(project, i)}
+        eager={i === 0}
+      />
+    ))}
+  </div>
+</section>
+
+<style>
+  .work__head {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid var(--rule);
+    padding-top: var(--space-s);
+    margin-bottom: var(--space-m);
+  }
+  .work__count { color: var(--muted); }
+
+  .work__grid {
+    display: grid;
+    row-gap: var(--space-l);
+    column-gap: var(--gutter);
+    align-items: start;
+  }
+
+  /* Tablette : 2 colonnes, les formats larges prennent toute la largeur. */
+  @media (min-width: 600px) {
+    .work__grid { grid-template-columns: 1fr 1fr; }
+    .work__grid > :global(.l-full),
+    .work__grid > :global(.l-wide) { grid-column: 1 / -1; }
+    .work__grid > :global(.l-centered) { grid-column: 1 / -1; justify-self: center; width: min(100%, 34rem); }
+  }
+
+  /* Desktop : grille 12 colonnes, rythme irrégulier mais maîtrisé. */
+  @media (min-width: 1024px) {
+    .work__grid { grid-template-columns: repeat(12, 1fr); }
+    .work__grid > :global(.l-full)   { grid-column: 1 / -1; }
+    .work__grid > :global(.l-large)  { grid-column: 1 / span 7; }
+    .work__grid > :global(.l-small)  { grid-column: 9 / span 4; align-self: end; }
+    .work__grid > :global(.l-wide)   { grid-column: 4 / -1; }
+    .work__grid > :global(.l-medium) { grid-column: 1 / span 5; }
+    .work__grid > :global(.l-offset) { grid-column: 7 / -1; margin-top: var(--space-l); }
+    .work__grid > :global(.l-centered) { grid-column: 4 / span 6; width: auto; }
+  }
+</style>

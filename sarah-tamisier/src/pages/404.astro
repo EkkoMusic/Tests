@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../data/site';
+import { url } from '../lib/url';
+---
+
+<BaseLayout title={`Page not found — ${site.name}`} noindex>
+  <section class="container nf">
+    <h1>Page not found.</h1>
+    <a class="arrow-link label" href={url('/')}>Back to the portfolio <span aria-hidden="true">→</span></a>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf { padding-block: var(--space-section); display: grid; gap: var(--space-m); justify-items: start; }
+  h1 { font-family: var(--font-display); font-size: var(--step-4); }
+</style>

@@ -1,0 +1,109 @@
+---
+import { Picture } from 'astro:assets';
+import { projectHref, projectMeta, type Project } from '../lib/projects';
+import { url } from '../lib/url';
+
+export type Layout = 'full' | 'large' | 'small' | 'wide' | 'medium' | 'offset' | 'centered';
+
+interface Props {
+  project: Project;
+  index: number;
+  layout: Layout;
+  eager?: boolean;
+}
+
+const { project, index, layout, eager = false } = Astro.props;
+const { title, thumbnail, thumbnailAlt } = project.data;
+
+// Largeur réellement occupée par l'image selon sa place dans la grille,
+// pour que le navigateur télécharge la bonne résolution.
+const sizes: Record<Layout, string> = {
+  full: '(min-width: 1024px) min(92vw, 1640px), 100vw',
+  wide: '(min-width: 1024px) min(70vw, 1240px), 100vw',
+  large: '(min-width: 1024px) min(55vw, 960px), (min-width: 600px) 46vw, 100vw',
+  offset: '(min-width: 1024px) min(47vw, 820px), (min-width: 600px) 46vw, 100vw',
+  medium: '(min-width: 1024px) min(38vw, 680px), (min-width: 600px) 46vw, 100vw',
+  small: '(min-width: 1024px) min(30vw, 540px), (min-width: 600px) 46vw, 100vw',
+  centered: '(min-width: 1024px) min(46vw, 820px), (min-width: 600px) 34rem, 100vw',
+};
+---
+
+<article class:list={['project', `l-${layout}`]}>
+  <a class="project__link" href={url(projectHref(project))}>
+    <div class="project__media">
+      <Picture
+        src={thumbnail}
+        alt={thumbnailAlt}
+        formats={['avif', 'webp']}
+        widths={[480, 720, 960, 1280, 1600, 2000, 2400].filter((w) => w <= thumbnail.width)}
+        sizes={sizes[layout]}
+        loading={eager ? 'eager' : 'lazy'}
+        fetchpriority={eager ? 'high' : 'auto'}
+        decoding="async"
+      />
+    </div>
+    <div class="project__caption">
+      <span class="project__index label" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+      <h3 class="project__title">{title}<span class="project__arrow" aria-hidden="true">→</span></h3>
+      <p class="project__meta label">{projectMeta(project)}</p>
+    </div>
+  </a>
+</article>
+
+<style>
+  .project__link {
+    display: block;
+    text-decoration: none;
+  }
+
+  .project__media {
+    overflow: hidden;
+    background: color-mix(in srgb, var(--foreground) 6%, transparent);
+  }
+  .project__media :global(img) {
+    width: 100%;
+    transition: transform var(--duration) var(--ease);
+  }
+
+  .project__caption {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 0.9rem;
+    row-gap: 0.2rem;
+    padding-top: 0.9rem;
+  }
+  .project__index {
+    grid-row: 1 / span 2;
+    color: var(--muted);
+    padding-top: 0.35em;
+  }
+  .project__title {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    line-height: 1.15;
+  }
+  .project__meta {
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  .project__arrow {
+    display: inline-block;
+    margin-left: 0.4em;
+    color: var(--accent);
+    opacity: 0;
+    transform: translateX(-0.3em);
+    transition: opacity var(--duration) var(--ease), transform var(--duration) var(--ease);
+  }
+
+  /* Survol : uniquement sur les appareils qui ont un vrai pointeur. */
+  @media (hover: hover) and (pointer: fine) {
+    .project__link:hover .project__media :global(img) { transform: scale(1.02); }
+    .project__link:hover .project__arrow { opacity: 1; transform: none; }
+  }
+  .project__link:focus-visible .project__arrow { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project__link:hover .project__media :global(img) { transform: none; }
+  }
+</style>

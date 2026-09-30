@@ -1,0 +1,65 @@
+---
+// Page projet MINIMALE (phase 1) : évite les liens morts. Mise en page détaillée en phase 2.
+import { Picture } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getProjects, projectHref, type Project } from '../../lib/projects';
+import { categories } from '../../data/categories';
+import { site } from '../../data/site';
+import { url } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((project, i) => ({
+    params: { slug: project.data.slug },
+    props: { project, next: projects[(i + 1) % projects.length] },
+  }));
+}
+
+const { project, next } = Astro.props as { project: Project; next: Project };
+const { title, year, disciplines, category, client, thumbnail, thumbnailAlt, shortDescription, images } = project.data;
+const description = shortDescription ?? `${title} — ${disciplines.join(', ')}. ${categories[category].label} by ${site.name}.`;
+---
+
+<BaseLayout title={`${title} — ${site.name}`} description={description} image={thumbnail.src}>
+  <article class="project-page container">
+    <a class="label back" href={url('/#work')}><span aria-hidden="true">←</span> Selected Work</a>
+    <header class="project-page__head">
+      <h1>{title}</h1>
+      <dl class="label">
+        <div><dt>Discipline</dt><dd>{disciplines.join(' · ')}</dd></div>
+        <div><dt>Field</dt><dd>{categories[category].label}</dd></div>
+        {client && <div><dt>Context</dt><dd>{client}</dd></div>}
+        {year && <div><dt>Year</dt><dd>{year}</dd></div>}
+      </dl>
+      {shortDescription && <p class="project-page__desc">{shortDescription}</p>}
+    </header>
+
+    <Picture src={thumbnail} alt={thumbnailAlt} formats={['avif', 'webp']}
+      widths={[720, 1280, 1920, 2400].filter((w) => w <= thumbnail.width)}
+      sizes="min(100vw, 1760px)" loading="eager" fetchpriority="high" />
+    {images.map((img) => (
+      <Picture src={img.src} alt={img.alt} formats={['avif', 'webp']}
+        widths={[720, 1280, 1920, 2400].filter((w) => w <= img.src.width)} sizes="min(100vw, 1760px)" />
+    ))}
+
+    <nav class="project-page__next" aria-label="Next project">
+      <span class="label">Next</span>
+      <a href={url(projectHref(next))}>{next.data.title} <span aria-hidden="true">→</span></a>
+    </nav>
+  </article>
+</BaseLayout>
+
+<style>
+  .project-page { display: grid; gap: var(--space-m); padding-block: var(--space-m) var(--space-section); }
+  .back { text-decoration: none; color: var(--muted); }
+  .back:hover { color: var(--foreground); }
+  h1 { font-family: var(--font-display); font-size: var(--step-4); letter-spacing: -0.02em; }
+  dl { display: flex; flex-wrap: wrap; gap: 1rem 3rem; margin-top: var(--space-m); }
+  dt { color: var(--muted); }
+  dd { margin: 0.25rem 0 0; }
+  .project-page__desc { margin-top: var(--space-m); font-size: var(--step-1); max-width: 55ch; }
+  .project-page__next { border-top: 1px solid var(--rule); padding-top: var(--space-s); display: grid; gap: 0.5rem; margin-top: var(--space-l); }
+  .project-page__next span.label { color: var(--muted); }
+  .project-page__next a { font-family: var(--font-display); font-size: var(--step-2); text-decoration: none; }
+  .project-page__next a:hover { color: var(--accent); }
+</style>
