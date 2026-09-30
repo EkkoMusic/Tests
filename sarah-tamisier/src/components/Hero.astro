@@ -1,5 +1,7 @@
 ---
+import { Picture } from 'astro:assets';
 import { site } from '../data/site';
+import portrait from '../assets/hero/sarah.png';
 import type { ProjectGroup } from './ProjectGrid.astro';
 
 interface Props {
@@ -7,47 +9,92 @@ interface Props {
 }
 
 const { groups } = Astro.props;
-const { statement, filtersLabel } = site.hero;
+const { statement, filtersLabel, portraitAlt } = site.hero;
 const [first, ...rest] = site.name.split(' ');
 ---
 
 <section class="hero container" aria-labelledby="hero-title">
-  <h1 id="hero-title" class="hero__name">
-    <span>{first}</span> <span>{rest.join(' ')}</span>
-  </h1>
+  <div class="hero__stage">
+    <div class="hero__portrait">
+      <Picture
+      src={portrait}
+      alt={portraitAlt}
+      formats={['avif', 'webp']}
+      widths={[400, 640, 900, portrait.width]}
+      sizes="(min-width: 768px) clamp(220px, 26vw, 460px), 56vw"
+      loading="eager"
+      fetchpriority="high"
+      />
+    </div>
 
-  <div class="hero__row">
-    {statement && <p class="hero__statement">{statement}</p>}
-    <nav class="hero__filters" aria-label={filtersLabel}>
-      <ul class="label" role="list">
-        {groups.map((g, i) => (
-          <li>
-            {/* Sans JavaScript : simple lien vers la catégorie. Avec : filtre (voir ProjectGrid). */}
-            <a href={`#${g.anchor}`} data-filter={g.id} aria-current={i === 0 ? 'true' : undefined}>
-              {g.label}<span class="hero__count">{String(g.projects.length).padStart(2, '0')}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
+    <h1 id="hero-title" class="hero__name">
+      <span>{first}</span> <span>{rest.join(' ')}</span>
+    </h1>
+
+    <div class="hero__row">
+      {statement && <p class="hero__statement">{statement}</p>}
+      <nav class="hero__filters" aria-label={filtersLabel}>
+        <ul class="label" role="list">
+          {groups.map((g, i) => (
+            <li>
+              {/* Sans JavaScript : simple lien vers la catégorie. Avec : filtre (voir ProjectGrid). */}
+              <a href={`#${g.anchor}`} data-filter={g.id} aria-current={i === 0 ? 'true' : undefined}>
+                {g.label}<span class="hero__count">{String(g.projects.length).padStart(2, '0')}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
   </div>
 </section>
 
 <style>
   .hero {
-    padding-block: clamp(2rem, 1rem + 5vw, 6rem) var(--space-l);
+    /* Réglages de la composition photo + nom (ratio photo ≈ 1,25) */
+    --photo-w: min(56vw, 300px);
+    --name-x: calc(var(--photo-w) * 0.34); /* le S démarre au niveau du crâne */
+    /* Mobile : taille calculée pour que le nom (≈ 7,8 × sa taille) tienne sur une ligne. */
+    --name-size: min(var(--step-name), calc((100vw - 2 * var(--gutter) - var(--name-x)) / 7.9));
+    /* Descend la photo pour que le haut de la tête (≈ 13 % de sa largeur) arrive
+       juste sous le haut des lettres : le S effleure la tête sans la recouvrir. */
+    --photo-y: max(0px, calc(var(--name-size) * 0.72 - var(--photo-w) * 0.134));
+    padding-block: var(--space-s) var(--space-l);
   }
 
+  /* Photo, nom et textes sont superposés dans la même cellule de grille. */
+  .hero__stage {
+    display: grid;
+    isolation: isolate; /* limite l'effet de fusion du nom à la photo et au fond */
+    background: var(--background); /* indispensable : le nom se fond avec ce fond */
+  }
+  .hero__stage > * { grid-area: 1 / 1; }
+
+  .hero__portrait {
+    width: var(--photo-w);
+    margin-top: var(--photo-y);
+    height: auto;
+    z-index: 0;
+  }
+  .hero__portrait :global(img) { display: block; width: 100%; height: auto; }
+
   .hero__name {
+    z-index: 1;
+    align-self: start;
+    margin: 0 0 0 var(--name-x);
     font-family: var(--font-display);
-    font-size: var(--step-name);
+    font-size: var(--name-size);
     line-height: 0.92;
     letter-spacing: -0.025em;
-    margin-left: -0.04em; /* aligne optiquement le S sur la marge */
+    /* Blanc + « difference » : encre sombre sur le papier, claire sur la photo. */
+    color: #fff;
+    mix-blend-mode: difference;
   }
   .hero__name span { white-space: nowrap; }
 
-  .hero__row {
+  /* Mobile : phrase et filtres passent sous la photo. */
+  .hero__stage > .hero__row {
+    grid-area: 2 / 1;
     display: grid;
     gap: var(--space-m);
     margin-top: var(--space-m);
@@ -87,13 +134,24 @@ const [first, ...rest] = site.name.split(' ');
     color: var(--muted);
   }
 
+  /* Tablette et desktop : phrase et filtres à droite de la photo, alignés sur son bas. */
   @media (min-width: 768px) {
-    .hero__row {
-      grid-template-columns: repeat(12, 1fr);
-      column-gap: var(--gutter);
-      align-items: start;
+    .hero {
+      --photo-w: clamp(220px, 26vw, 460px);
+      --name-x: calc(var(--photo-w) * 0.4);
+      --name-size: var(--step-name);
     }
-    .hero__statement { grid-column: 1 / span 6; }
-    .hero__filters { grid-column: 8 / -1; margin-top: -0.3em; }
+    .hero__stage > .hero__row {
+      grid-area: 1 / 1;
+      z-index: 1;
+      align-self: end;
+      margin: 0 0 0 calc(var(--photo-w) + var(--gutter));
+      grid-template-columns: 1fr auto;
+      column-gap: var(--gutter);
+      align-items: end;
+    }
+  }
+  @media (min-width: 768px) and (max-width: 1099px) {
+    .hero__stage > .hero__row { grid-template-columns: 1fr; }
   }
 </style>
