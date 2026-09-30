@@ -64,5 +64,11 @@ const ogImage = new URL(image, Astro.site);
       <slot />
     </main>
     <Footer />
+    <script>
+      // Éditeur visuel : chargé uniquement pour l'admin connecté (aucun coût pour les visiteurs).
+      try {
+        if (sessionStorage.getItem('st-admin-token') && !document.querySelector('[data-admin-page]')) import('../admin/editor');
+      } catch {}
+    </script>
   </body>
 </html>

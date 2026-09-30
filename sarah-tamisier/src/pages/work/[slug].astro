@@ -22,28 +22,32 @@ const description = shortDescription ?? `${title} — ${disciplines.join(', ')}.
 ---
 
 <BaseLayout title={`${title} — ${site.name}`} description={description} image={thumbnail.src}>
-  <article class="project-page container">
+  <article class="project-page container" data-slug={project.data.slug}>
     <a class="label back" href={url('/#projets')}><span aria-hidden="true">←</span> Projets</a>
     <header class="project-page__head">
-      <h1>{title}</h1>
-      <dl class="label">
+      <h1 data-field="title">{title}</h1>
+      <dl class="label" data-field="facts">
         <div><dt>Disciplines</dt><dd>{disciplines.join(' · ')}</dd></div>
         <div><dt>Catégorie</dt><dd>{fields}</dd></div>
         {client && <div><dt>Contexte</dt><dd>{client}</dd></div>}
         {year && <div><dt>Année</dt><dd>{year}</dd></div>}
       </dl>
-      {shortDescription && <p class="project-page__desc">{shortDescription}</p>}
+      {shortDescription && <p class="project-page__desc" data-field="shortDescription">{shortDescription}</p>}
     </header>
 
-    <Picture src={thumbnail} alt={thumbnailAlt} formats={['avif', 'webp']}
-      widths={[720, 1280, 1920, 2400].filter((w) => w <= thumbnail.width)}
-      sizes="min(100vw, 1760px)" loading="eager" fetchpriority="high" />
-    {images.map((img) => (
-      <Picture src={img.src} alt={img.alt} formats={['avif', 'webp']}
-        widths={[720, 1280, 1920, 2400].filter((w) => w <= img.src.width)} sizes="min(100vw, 1760px)" />
+    <figure class="project-page__img" data-field="thumbnail">
+      <Picture src={thumbnail} alt={thumbnailAlt} formats={['avif', 'webp']}
+        widths={[720, 1280, 1920, 2400].filter((w) => w <= thumbnail.width)}
+        sizes="min(100vw, 1760px)" loading="eager" fetchpriority="high" />
+    </figure>
+    {images.map((img, i) => (
+      <figure class="project-page__img" data-image={i}>
+        <Picture src={img.src} alt={img.alt} formats={['avif', 'webp']}
+          widths={[720, 1280, 1920, 2400].filter((w) => w <= img.src.width)} sizes="min(100vw, 1760px)" />
+      </figure>
     ))}
 
-    <nav class="project-page__next" aria-label="Projet suivant">
+    <nav class="project-page__next" data-gallery-end aria-label="Projet suivant">
       <span class="label">Projet suivant</span>
       <a href={url(projectHref(next))}>{next.data.title} <span aria-hidden="true">→</span></a>
     </nav>

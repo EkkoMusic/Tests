@@ -28,9 +28,9 @@ const sizes: Record<Layout, string> = {
 };
 ---
 
-<article class:list={['project', `l-${layout}`]}>
+<article class:list={['project', `l-${layout}`]} data-slug={project.data.slug}>
   <a class="project__link" href={url(projectHref(project))}>
-    <div class="project__media">
+    <div class="project__media" data-field="thumbnail">
       <Picture
         src={thumbnail}
         alt={thumbnailAlt}
@@ -44,8 +44,8 @@ const sizes: Record<Layout, string> = {
     </div>
     <div class="project__caption">
       <span class="project__index label" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-      <h3 class="project__title">{title}<span class="project__arrow" aria-hidden="true">→</span></h3>
-      <p class="project__meta label">{projectMeta(project)}</p>
+      <h3 class="project__title"><span data-field="title">{title}</span><span class="project__arrow" aria-hidden="true">→</span></h3>
+      <p class="project__meta label" data-field="meta">{projectMeta(project)}</p>
     </div>
   </a>
 </article>

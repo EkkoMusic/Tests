@@ -1,0 +1,171 @@
+/* Éditeur visuel : tout est préfixé st- pour ne jamais toucher au site. */
+
+.st-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 1.25rem;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  width: max-content;
+  max-width: calc(100vw - 1rem);
+  padding: 0.4rem;
+  background: var(--foreground);
+  color: var(--background);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.25);
+  font-family: var(--font-text);
+  font-size: 0.8rem;
+}
+.st-bar__grip { cursor: grab; padding: 0.3rem 0.35rem; opacity: 0.7; touch-action: none; user-select: none; font-size: 1rem; line-height: 1; }
+.st-bar__grip:active { cursor: grabbing; }
+.st-bar__brand { padding-inline: 0.3rem 0.5rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+
+.st-btn {
+  font: inherit;
+  font-size: 0.8rem;
+  line-height: 1.2;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.st-btn:hover { border-color: currentColor; }
+.st-btn:disabled { opacity: 0.45; cursor: default; }
+.st-btn--primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.st-btn--primary:hover { background: #8f2d14; }
+.st-btn--danger:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+.st-btn--warn { background: var(--accent); border-color: var(--accent); color: #fff; }
+.st-btn--icon { padding-inline: 0.55rem; }
+.st-btn--big { width: 100%; padding: 1.5rem; border-style: dashed; font-size: 0.9rem; }
+
+.st-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 0.6rem 1rem;
+  background: #f0d9a8;
+  color: var(--foreground);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* Zones modifiables */
+.st-editing .st-editable {
+  outline: 1px dashed color-mix(in srgb, var(--accent) 55%, transparent);
+  outline-offset: 4px;
+  cursor: text;
+  min-width: 2ch;
+}
+.st-editing .st-editable:hover,
+.st-editing .st-editable:focus { outline: 2px solid var(--accent); }
+.st-editing .st-editable:empty::before { content: attr(data-placeholder); color: var(--muted); }
+.st-editing [data-field="shortDescription"] { display: block; }
+
+.st-host { position: relative; }
+.st-tools {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.3rem;
+  max-width: calc(100% - 1.2rem);
+  font-family: var(--font-text);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.st-tools .st-btn { background: rgb(255 255 255 / 0.92); color: var(--foreground); border-color: transparent; box-shadow: 0 2px 8px rgb(0 0 0 / 0.12); }
+.st-tools .st-btn:hover { border-color: var(--foreground); }
+.st-tools .st-btn--danger:hover,
+.st-tools .st-btn--warn { background: var(--accent); color: #fff; }
+dl.st-host .st-tools { top: auto; bottom: 100%; right: 0; margin-bottom: 0.4rem; }
+
+.st-editing article.project[data-slug] .project__media { cursor: copy; }
+.st-editing article.project[data-slug] .project__media::after {
+  content: 'Cliquer pour changer l’image';
+  position: absolute;
+  left: 0.6rem;
+  bottom: 0.6rem;
+  padding: 0.3rem 0.5rem;
+  background: rgb(255 255 255 / 0.92);
+  font-size: 0.75rem;
+  opacity: 0;
+  transition: opacity 200ms;
+}
+.st-editing article.project[data-slug] .project__media { position: relative; }
+.st-editing article.project[data-slug] .project__media:hover::after { opacity: 1; }
+
+.st-deleted { opacity: 0.35; }
+.st-deleted .st-tools { opacity: 1; }
+.st-preview { width: 100%; display: block; }
+.st-add-images { margin-block: var(--space-s); }
+
+/* Panneau latéral */
+.st-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1001;
+  width: min(26rem, 100vw);
+  overflow-y: auto;
+  background: var(--background);
+  color: var(--foreground);
+  border-left: 1px solid var(--rule);
+  box-shadow: -10px 0 30px rgb(0 0 0 / 0.15);
+  font-size: 0.9rem;
+}
+.st-panel__head {
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--background);
+  border-bottom: 1px solid var(--rule);
+}
+.st-panel__form { display: grid; gap: 1.1rem; padding: 1.25rem; }
+.st-field { display: grid; gap: 0.35rem; border: 0; padding: 0; }
+.st-field > span, .st-field > legend { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 0; }
+.st-field small { color: var(--muted); font-size: 0.75rem; }
+.st-field input, .st-field textarea {
+  font: inherit;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--rule);
+  background: #fff;
+  color: var(--foreground);
+  border-radius: 0;
+  resize: vertical;
+}
+.st-field input:focus, .st-field textarea:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+.st-checks { display: grid; gap: 0.3rem; }
+.st-check, .st-checks label { display: flex; gap: 0.5rem; align-items: center; cursor: pointer; }
+.st-row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.st-file { color: var(--muted); font-size: 0.8rem; overflow-wrap: anywhere; }
+.st-panel__actions { position: sticky; bottom: 0; padding-block: 0.75rem; background: var(--background); }
+
+/* Messages */
+.st-toasts { position: fixed; top: 1rem; right: 1rem; z-index: 1002; display: grid; gap: 0.5rem; max-width: min(24rem, calc(100vw - 2rem)); }
+.st-toast { padding: 0.75rem 1rem; background: var(--foreground); color: var(--background); font-size: 0.85rem; box-shadow: 0 6px 20px rgb(0 0 0 / 0.2); }
+.st-toast--ok { background: #2f5d3a; }
+.st-toast--error { background: var(--accent); }
+
+/* Laisse de la place au menu en bas de page. */
+body:has(.st-bar) { padding-bottom: 6rem; }
+
+@media (max-width: 600px) {
+  .st-bar { left: 0.5rem; right: 0.5rem; width: auto; transform: none; justify-content: center; }
+  .st-bar__brand { display: none; }
+  .st-tools .st-btn { padding: 0.4rem 0.55rem; }
+}
