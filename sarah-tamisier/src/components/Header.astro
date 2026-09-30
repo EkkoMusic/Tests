@@ -1,0 +1,40 @@
+---
+import { site } from '../data/site';
+import { url } from '../lib/url';
+---
+
+<header class="header container">
+  <a class="header__name label" href={url('/')}>{site.name}</a>
+  <nav aria-label="Main">
+    <ul class="header__nav" role="list">
+      {site.nav.map((item) => (
+        <li><a class="label" href={url(item.href)}>{item.label}</a></li>
+      ))}
+    </ul>
+  </nav>
+</header>
+
+<style>
+  .header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    padding-block: var(--space-s);
+  }
+  .header__name {
+    text-decoration: none;
+    letter-spacing: 0.14em;
+  }
+  .header__nav {
+    display: flex;
+    gap: clamp(1rem, 0.5rem + 2vw, 2.5rem);
+  }
+  .header__nav a {
+    text-decoration: none;
+    color: var(--muted);
+    transition: color 200ms var(--ease);
+  }
+  .header__nav a:hover { color: var(--foreground); }
+</style>

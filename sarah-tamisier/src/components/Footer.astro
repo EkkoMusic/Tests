@@ -1,0 +1,23 @@
+---
+import { site } from '../data/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="footer container">
+  <p class="label">© {year} {site.name}</p>
+  <a class="label" href="#main">Back to top <span aria-hidden="true">↑</span></a>
+</footer>
+
+<style>
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    border-top: 1px solid var(--rule);
+    padding-block: var(--space-s) var(--space-m);
+    color: var(--muted);
+  }
+  .footer a { text-decoration: none; }
+  .footer a:hover { color: var(--foreground); }
+</style>

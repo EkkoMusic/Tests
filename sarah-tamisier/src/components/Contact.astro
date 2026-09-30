@@ -1,0 +1,53 @@
+---
+import { site } from '../data/site';
+
+const { title, email, socials } = site.contact;
+const links = socials.filter((s) => s.href);
+---
+
+<section class="contact container" id="contact" aria-labelledby="contact-title">
+  <h2 id="contact-title" class="contact__title">
+    {title.map((line) => <span>{line}</span>)}
+  </h2>
+  <a class="contact__email" href={`mailto:${email}`}>{email}</a>
+  {links.length > 0 && (
+    <ul class="contact__socials" role="list">
+      {links.map((s) => (
+        <li><a class="label" href={s.href} rel="me noopener" target="_blank">{s.label}<span class="visually-hidden"> (opens in a new tab)</span></a></li>
+      ))}
+    </ul>
+  )}
+</section>
+
+<style>
+  .contact {
+    padding-block: var(--space-section);
+  }
+  .contact__title {
+    font-family: var(--font-display);
+    font-size: var(--step-4);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .contact__title span { display: block; }
+
+  .contact__email {
+    display: inline-block;
+    margin-top: var(--space-m);
+    font-size: var(--step-2);
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
+    overflow-wrap: anywhere;
+    transition: color 200ms var(--ease);
+  }
+  .contact__email:hover { color: var(--accent); }
+
+  .contact__socials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 2rem;
+    margin-top: var(--space-m);
+  }
+  .contact__socials a { color: var(--muted); text-decoration: none; }
+  .contact__socials a:hover { color: var(--foreground); }
+</style>
