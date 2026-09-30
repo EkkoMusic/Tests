@@ -21,7 +21,7 @@ const [first, ...rest] = site.name.split(' ');
       alt={portraitAlt}
       formats={['avif', 'webp']}
       widths={[400, 640, 900, portrait.width]}
-      sizes="(min-width: 768px) clamp(260px, 36vw, 620px), 72vw"
+      sizes="(min-width: 768px) clamp(220px, 26vw, 460px), 56vw"
       loading="eager"
       fetchpriority="high"
       />
@@ -52,9 +52,13 @@ const [first, ...rest] = site.name.split(' ');
 <style>
   .hero {
     /* Réglages de la composition photo + nom (ratio photo ≈ 1,25) */
-    --photo-w: min(72vw, 420px);
-    --name-x: calc(var(--photo-w) * 0.36); /* le S démarre au-dessus du crâne */
-    --name-y: calc(var(--photo-w) * 0.1);
+    --photo-w: min(56vw, 300px);
+    --name-x: calc(var(--photo-w) * 0.34); /* le S démarre au niveau du crâne */
+    /* Mobile : taille calculée pour que le nom (≈ 7,8 × sa taille) tienne sur une ligne. */
+    --name-size: min(var(--step-name), calc((100vw - 2 * var(--gutter) - var(--name-x)) / 7.9));
+    /* Descend la photo pour que le haut de la tête (≈ 13 % de sa largeur) arrive
+       juste sous le haut des lettres : le S effleure la tête sans la recouvrir. */
+    --photo-y: max(0px, calc(var(--name-size) * 0.72 - var(--photo-w) * 0.134));
     padding-block: var(--space-s) var(--space-l);
   }
 
@@ -68,6 +72,7 @@ const [first, ...rest] = site.name.split(' ');
 
   .hero__portrait {
     width: var(--photo-w);
+    margin-top: var(--photo-y);
     height: auto;
     z-index: 0;
   }
@@ -76,9 +81,9 @@ const [first, ...rest] = site.name.split(' ');
   .hero__name {
     z-index: 1;
     align-self: start;
-    margin: var(--name-y) 0 0 var(--name-x);
+    margin: 0 0 0 var(--name-x);
     font-family: var(--font-display);
-    font-size: var(--step-name);
+    font-size: var(--name-size);
     line-height: 0.92;
     letter-spacing: -0.025em;
     /* Blanc + « difference » : encre sombre sur le papier, claire sur la photo. */
@@ -131,7 +136,11 @@ const [first, ...rest] = site.name.split(' ');
 
   /* Tablette et desktop : phrase et filtres à droite de la photo, alignés sur son bas. */
   @media (min-width: 768px) {
-    .hero { --photo-w: clamp(260px, 36vw, 620px); }
+    .hero {
+      --photo-w: clamp(220px, 26vw, 460px);
+      --name-x: calc(var(--photo-w) * 0.4);
+      --name-size: var(--step-name);
+    }
     .hero__stage > .hero__row {
       grid-area: 1 / 1;
       z-index: 1;
