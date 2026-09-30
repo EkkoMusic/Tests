@@ -38,7 +38,7 @@ const sizes: Record<Layout, string> = {
         widths={[480, 720, 960, 1280, 1600, 2000, 2400].filter((w) => w <= thumbnail.width)}
         sizes={sizes[layout]}
         loading={eager ? 'eager' : 'lazy'}
-        fetchpriority="auto"
+        fetchpriority={eager ? 'high' : 'auto'}
         decoding="async"
       />
     </div>
