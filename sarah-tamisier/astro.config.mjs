@@ -14,7 +14,7 @@ export default defineConfig({
   integrations: [
     sitemap({
       // Pages provisoires exclues du sitemap tant qu'elles ne sont pas finalisées.
-      filter: (page) => !page.includes('/about/'),
+      filter: (page) => !page.includes('/a-propos/'),
     }),
   ],
   image: {

@@ -1,28 +1,31 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
-import ProjectGrid from '../components/ProjectGrid.astro';
+import ProjectGrid, { type ProjectGroup } from '../components/ProjectGrid.astro';
 import AboutPreview from '../components/AboutPreview.astro';
 import Contact from '../components/Contact.astro';
 import { getFeaturedProjects } from '../lib/projects';
+import { categories } from '../data/categories';
 import { site } from '../data/site';
 
-// Filtrage futur : getFeaturedProjects('concept-art') ou getFeaturedProjects('design').
-const projects = await getFeaturedProjects();
+// Une sélection par catégorie, dans l'ordre défini dans data/categories.ts.
+const groups: ProjectGroup[] = await Promise.all(
+  categories.map(async (c) => ({ ...c, projects: await getFeaturedProjects(c.id) })),
+);
 
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Person',
   name: site.name,
   url: new URL(import.meta.env.BASE_URL, Astro.site).href,
-  jobTitle: 'Illustrator, Concept Artist & Designer',
+  jobTitle: 'Illustratrice, concept artist & designer',
   sameAs: site.contact.socials.map((s) => s.href).filter(Boolean),
 };
 ---
 
 <BaseLayout jsonLd={jsonLd}>
-  <Hero />
-  <ProjectGrid projects={projects} title={site.work.title} />
+  <Hero groups={groups} />
+  <ProjectGrid groups={groups} />
   <AboutPreview />
   <Contact />
 </BaseLayout>

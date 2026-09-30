@@ -2,11 +2,11 @@
 title: "Calypso"
 slug: calypso
 # year: 2025            # TODO : année à renseigner
-category: design
-disciplines: ["Collection Design", "Illustration"]
+categories: [product-design]
+disciplines: ["Design de collection", "Illustration"]
 client: Monchoix
 thumbnail: ../../assets/projects/calypso/cover.jpg
-thumbnailAlt: "Placeholder image — Calypso"
+thumbnailAlt: "Visuel provisoire — Calypso"
 featured: true
 featuredOrder: 5
 placeholder: true

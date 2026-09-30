@@ -3,7 +3,7 @@
 import { Picture } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getProjects, projectHref, type Project } from '../../lib/projects';
-import { categories } from '../../data/categories';
+import { categoryLabel } from '../../data/categories';
 import { site } from '../../data/site';
 import { url } from '../../lib/url';
 
@@ -16,20 +16,21 @@ export async function getStaticPaths() {
 }
 
 const { project, next } = Astro.props as { project: Project; next: Project };
-const { title, year, disciplines, category, client, thumbnail, thumbnailAlt, shortDescription, images } = project.data;
-const description = shortDescription ?? `${title} — ${disciplines.join(', ')}. ${categories[category].label} by ${site.name}.`;
+const { title, year, disciplines, categories, client, thumbnail, thumbnailAlt, shortDescription, images } = project.data;
+const fields = categories.map(categoryLabel).join(', ');
+const description = shortDescription ?? `${title} — ${disciplines.join(', ')}. ${fields}, par ${site.name}.`;
 ---
 
 <BaseLayout title={`${title} — ${site.name}`} description={description} image={thumbnail.src}>
   <article class="project-page container">
-    <a class="label back" href={url('/#work')}><span aria-hidden="true">←</span> Selected Work</a>
+    <a class="label back" href={url('/#projets')}><span aria-hidden="true">←</span> Projets</a>
     <header class="project-page__head">
       <h1>{title}</h1>
       <dl class="label">
-        <div><dt>Discipline</dt><dd>{disciplines.join(' · ')}</dd></div>
-        <div><dt>Field</dt><dd>{categories[category].label}</dd></div>
-        {client && <div><dt>Context</dt><dd>{client}</dd></div>}
-        {year && <div><dt>Year</dt><dd>{year}</dd></div>}
+        <div><dt>Disciplines</dt><dd>{disciplines.join(' · ')}</dd></div>
+        <div><dt>Catégorie</dt><dd>{fields}</dd></div>
+        {client && <div><dt>Contexte</dt><dd>{client}</dd></div>}
+        {year && <div><dt>Année</dt><dd>{year}</dd></div>}
       </dl>
       {shortDescription && <p class="project-page__desc">{shortDescription}</p>}
     </header>
@@ -42,8 +43,8 @@ const description = shortDescription ?? `${title} — ${disciplines.join(', ')}.
         widths={[720, 1280, 1920, 2400].filter((w) => w <= img.src.width)} sizes="min(100vw, 1760px)" />
     ))}
 
-    <nav class="project-page__next" aria-label="Next project">
-      <span class="label">Next</span>
+    <nav class="project-page__next" aria-label="Projet suivant">
+      <span class="label">Projet suivant</span>
       <a href={url(projectHref(next))}>{next.data.title} <span aria-hidden="true">→</span></a>
     </nav>
   </article>

@@ -2,10 +2,10 @@
 title: "Le Dragon-écureuil"
 slug: dragon-ecureuil
 # year: 2025            # TODO : année à renseigner
-category: concept-art
-disciplines: ["Creature Design", "Blender", "Digital Painting"]
+categories: [concept-art]
+disciplines: ["Creature concept", "Sculpture 3D", "Peinture digitale"]
 thumbnail: ../../assets/projects/dragon-ecureuil/cover.jpg
-thumbnailAlt: "Placeholder image — Le Dragon-écureuil"
+thumbnailAlt: "Visuel provisoire — Le Dragon-écureuil"
 featured: true
 featuredOrder: 3
 placeholder: true

@@ -2,10 +2,10 @@
 title: "Papinou & Nora"
 slug: papinou-et-nora
 # year: 2025            # TODO : année à renseigner
-category: concept-art
-disciplines: ["Character Design", "Visual Development"]
+categories: [illustration, concept-art]
+disciplines: ["Charadesign", "Peinture digitale"]
 thumbnail: ../../assets/projects/papinou-et-nora/cover.jpg
-thumbnailAlt: "Placeholder image — Papinou & Nora"
+thumbnailAlt: "Visuel provisoire — Papinou & Nora"
 featured: true
 featuredOrder: 8
 placeholder: true

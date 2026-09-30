@@ -5,7 +5,7 @@ import { url } from '../lib/url';
 
 <header class="header container">
   <a class="header__name label" href={url('/')}>{site.name}</a>
-  <nav aria-label="Main">
+  <nav aria-label="Navigation principale">
     <ul class="header__nav" role="list">
       {site.nav.map((item) => (
         <li><a class="label" href={url(item.href)}>{item.label}</a></li>

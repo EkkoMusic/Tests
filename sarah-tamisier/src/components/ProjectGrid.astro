@@ -1,14 +1,21 @@
 ---
 import ProjectPreview, { type Layout } from './ProjectPreview.astro';
 import type { Project } from '../lib/projects';
+import type { CategoryId } from '../data/categories';
+
+export interface ProjectGroup {
+  id: CategoryId;
+  anchor: string;
+  label: string;
+  projects: Project[];
+}
 
 interface Props {
-  projects: Project[];
-  title: string;
+  groups: ProjectGroup[];
   id?: string;
 }
 
-const { projects, title, id = 'work' } = Astro.props;
+const { groups, id = 'projets' } = Astro.props;
 
 // Rythme éditorial : la séquence se répète. Un projet peut l'imposer via `layout`.
 const rhythm: Layout[] = ['full', 'large', 'small', 'wide', 'medium', 'offset'];
@@ -24,25 +31,58 @@ function layoutFor(project: Project, i: number): Layout {
 }
 ---
 
-<section class="work container" id={id} aria-labelledby={`${id}-title`}>
-  <header class="work__head">
-    <h2 id={`${id}-title`} class="label">{title}</h2>
-    <span class="label work__count" aria-hidden="true">({String(projects.length).padStart(2, '0')})</span>
-  </header>
+<!--
+  Une grille par catégorie. Sans JavaScript, toutes sont visibles les unes sous les autres ;
+  avec JavaScript, seule la catégorie choisie dans le hero est affichée.
+-->
+<section class="work container" id={id}>
+  {groups.map((group, g) => (
+    <div class:list={['work__panel', { 'is-active': g === 0 }]} id={group.anchor} data-panel={group.id} aria-labelledby={`${group.anchor}-title`} role="region">
+      <header class="work__head">
+        <h2 id={`${group.anchor}-title`} class="label">{group.label}</h2>
+        <span class="label work__count" aria-hidden="true">({String(group.projects.length).padStart(2, '0')})</span>
+      </header>
 
-  <div class="work__grid">
-    {projects.map((project, i) => (
-      <ProjectPreview
-        project={project}
-        index={i}
-        layout={layoutFor(project, i)}
-        eager={i === 0}
-      />
-    ))}
-  </div>
+      <div class="work__grid">
+        {group.projects.map((project, i) => (
+          <ProjectPreview project={project} index={i} layout={layoutFor(project, i)} eager={g === 0 && i === 0} />
+        ))}
+      </div>
+    </div>
+  ))}
 </section>
 
+<script>
+  const links = document.querySelectorAll<HTMLAnchorElement>('[data-filter]');
+  const panels = document.querySelectorAll<HTMLElement>('[data-panel]');
+
+  function show(id: string) {
+    panels.forEach((p) => p.classList.toggle('is-active', p.dataset.panel === id));
+    links.forEach((l) => {
+      if (l.dataset.filter === id) l.setAttribute('aria-current', 'true');
+      else l.removeAttribute('aria-current');
+    });
+  }
+
+  links.forEach((link) =>
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      show(link.dataset.filter!);
+      // URL partageable (ex. /#illustration) sans faire défiler la page.
+      history.replaceState(null, '', link.hash);
+    }),
+  );
+
+  // Ouverture directe sur une catégorie via l'URL.
+  const fromHash = [...links].find((l) => l.hash && l.hash === location.hash);
+  if (fromHash) show(fromHash.dataset.filter!);
+</script>
+
 <style>
+  :global(.js) .work__panel:not(.is-active) { display: none; }
+  .work__panel + .work__panel { margin-top: var(--space-section); }
+  :global(.js) .work__panel + .work__panel { margin-top: 0; }
+
   .work__head {
     display: flex;
     justify-content: space-between;

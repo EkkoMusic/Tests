@@ -1,49 +1,46 @@
 /**
  * Tous les textes éditables du site au même endroit.
- * Tout est PROVISOIRE (copywriting à retravailler en phase 2).
+ * Tout est PROVISOIRE (copywriting à retravailler).
+ * Les catégories du hero (filtres) se règlent dans ./categories.ts.
  */
 export const site = {
   name: 'Sarah Tamisier',
-  lang: 'en',
-  locale: 'en_GB',
+  lang: 'fr',
+  locale: 'fr_FR',
 
   seo: {
-    title: 'Sarah Tamisier — Illustrator, Concept Artist & Designer',
+    title: 'Sarah Tamisier — Illustratrice, concept artist & designer',
     description:
-      'Portfolio of Sarah Tamisier, illustrator and designer: concept art, visual development, illustration and product collection design.',
+      'Portfolio de Sarah Tamisier, illustratrice et designer : design produit et collections, illustration, concept art et visual development.',
     ogImage: '/og-default.jpg',
   },
 
   nav: [
-    { label: 'Work', href: '/#work' },
-    { label: 'About', href: '/#about' },
+    { label: 'Projets', href: '/#projets' },
+    { label: 'À propos', href: '/#a-propos' },
     { label: 'Contact', href: '/#contact' },
   ],
 
   hero: {
-    // Disciplines affichées dans le hero : ajouter / retirer / reformuler librement.
-    disciplines: ['Illustration', 'Concept Art', 'Product Design & Development'],
     // Phrase courte optionnelle (mettre '' pour la masquer).
-    statement: 'Illustrator & designer working across imaginary worlds and physical objects.',
-  },
-
-  work: {
-    title: 'Selected Work',
+    statement: 'Illustratrice et designer, entre mondes imaginaires et objets bien réels.',
+    filtersLabel: 'Afficher les projets par discipline',
   },
 
   about: {
-    title: 'About',
+    title: 'À propos',
     paragraphs: [
-      'Sarah Tamisier is an illustrator and designer based in Brittany, France.',
-      'For the past seven years, she has worked across illustration, product design and collection development.',
-      'She is currently extending her practice into concept art and visual development, combining digital painting and 3D workflows.',
+      'Sarah Tamisier est illustratrice et designer, installée en Bretagne.',
+      'Depuis sept ans, elle travaille entre illustration, design produit et développement de collections.',
+      'Elle élargit aujourd’hui sa pratique au concept art et au visual development, en associant peinture digitale et 3D.',
     ],
-    moreLabel: 'More about Sarah',
-    moreHref: '/about/',
+    moreLabel: 'En savoir plus',
+    moreHref: '/a-propos/',
   },
 
   contact: {
-    title: ['Have a project?', 'Let’s talk.'],
+    //   = espace fine insécable avant « ? » (typographie française).
+    title: ['Un projet ?', 'Parlons-en.'],
     // TODO : adresse e-mail réelle. Ne jamais publier d'adresse postale ni de téléphone.
     email: 'hello@example.com',
     // Mettre l'URL pour afficher un lien, laisser vide pour le masquer.
