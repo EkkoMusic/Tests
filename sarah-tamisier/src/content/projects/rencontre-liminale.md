@@ -2,10 +2,10 @@
 title: "Rencontre liminale"
 slug: rencontre-liminale
 # year: 2025            # TODO : année à renseigner
-category: concept-art
-disciplines: ["Environment", "Illustration", "Photobashing"]
+categories: [illustration]
+disciplines: ["Peinture digitale", "Photobashing"]
 thumbnail: ../../assets/projects/rencontre-liminale/cover.jpg
-thumbnailAlt: "Placeholder image — Rencontre liminale"
+thumbnailAlt: "Visuel provisoire — Rencontre liminale"
 featured: true
 featuredOrder: 4
 placeholder: true

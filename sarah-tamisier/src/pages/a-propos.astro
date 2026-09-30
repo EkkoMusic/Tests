@@ -1,15 +1,15 @@
 ---
-// Page About provisoire (noindex) : la version complète arrive en phase 2.
+// Page À propos provisoire (noindex) : la version complète arrive en phase 2.
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { site } from '../data/site';
 import { url } from '../lib/url';
 ---
 
-<BaseLayout title={`About — ${site.name}`} noindex>
+<BaseLayout title={`À propos — ${site.name}`} noindex>
   <section class="container stub">
-    <h1>About</h1>
+    <h1>À propos</h1>
     {site.about.paragraphs.map((p) => <p>{p}</p>)}
-    <a class="arrow-link label" href={url('/#contact')}>Get in touch <span aria-hidden="true">→</span></a>
+    <a class="arrow-link label" href={url('/#contact')}>Me contacter <span aria-hidden="true">→</span></a>
   </section>
 </BaseLayout>
 

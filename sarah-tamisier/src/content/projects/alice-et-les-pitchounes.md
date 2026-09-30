@@ -2,11 +2,11 @@
 title: "Alice & les Pitchounes"
 slug: alice-et-les-pitchounes
 # year: 2025            # TODO : année à renseigner
-category: design
-disciplines: ["Character", "Product Collection"]
+categories: [product-design]
+disciplines: ["Personnages", "Collection produit"]
 client: Monchoix
 thumbnail: ../../assets/projects/alice-et-les-pitchounes/cover.jpg
-thumbnailAlt: "Placeholder image — Alice & les Pitchounes"
+thumbnailAlt: "Visuel provisoire — Alice & les Pitchounes"
 featured: true
 featuredOrder: 7
 placeholder: true

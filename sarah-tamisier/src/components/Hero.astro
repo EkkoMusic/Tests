@@ -1,7 +1,13 @@
 ---
 import { site } from '../data/site';
+import type { ProjectGroup } from './ProjectGrid.astro';
 
-const { disciplines, statement } = site.hero;
+interface Props {
+  groups: ProjectGroup[];
+}
+
+const { groups } = Astro.props;
+const { statement, filtersLabel } = site.hero;
 const [first, ...rest] = site.name.split(' ');
 ---
 
@@ -12,9 +18,18 @@ const [first, ...rest] = site.name.split(' ');
 
   <div class="hero__row">
     {statement && <p class="hero__statement">{statement}</p>}
-    <ul class="hero__disciplines label" role="list" aria-label="Disciplines">
-      {disciplines.map((d) => <li>{d}</li>)}
-    </ul>
+    <nav class="hero__filters" aria-label={filtersLabel}>
+      <ul class="label" role="list">
+        {groups.map((g, i) => (
+          <li>
+            {/* Sans JavaScript : simple lien vers la catégorie. Avec : filtre (voir ProjectGrid). */}
+            <a href={`#${g.anchor}`} data-filter={g.id} aria-current={i === 0 ? 'true' : undefined}>
+              {g.label}<span class="hero__count">{String(g.projects.length).padStart(2, '0')}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
   </div>
 </section>
 
@@ -44,16 +59,32 @@ const [first, ...rest] = site.name.split(' ');
     max-width: 30ch;
   }
 
-  .hero__disciplines {
+  .hero__filters ul {
     list-style: none;
     padding: 0;
-    color: var(--muted);
     display: grid;
-    gap: 0.35em;
+    gap: 0.2em;
   }
-  .hero__disciplines li::before {
+  .hero__filters a {
+    display: inline-block;
+    padding-block: 0.3em; /* zone de clic confortable */
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 200ms var(--ease);
+  }
+  .hero__filters a::before {
     content: '— ';
-    color: var(--accent);
+    transition: color 200ms var(--ease);
+  }
+  .hero__filters a:hover { color: var(--foreground); }
+  .hero__filters a[aria-current='true'] { color: var(--foreground); }
+  .hero__filters a[aria-current='true']::before { color: var(--accent); }
+
+  .hero__count {
+    font-size: 0.75em;
+    vertical-align: super;
+    margin-left: 0.35em;
+    color: var(--muted);
   }
 
   @media (min-width: 768px) {
@@ -63,6 +94,6 @@ const [first, ...rest] = site.name.split(' ');
       align-items: start;
     }
     .hero__statement { grid-column: 1 / span 6; }
-    .hero__disciplines { grid-column: 8 / -1; }
+    .hero__filters { grid-column: 8 / -1; margin-top: -0.3em; }
   }
 </style>

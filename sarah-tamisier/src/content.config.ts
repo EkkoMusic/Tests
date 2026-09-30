@@ -6,7 +6,7 @@ import { categoryIds } from './data/categories';
 /**
  * Un fichier Markdown = un projet (src/content/projects/*.md).
  * Ajouter ou réordonner un projet ne nécessite aucune modification de la homepage :
- * seuls `featured` et `featuredOrder` décident de ce qui apparaît dans Selected Work.
+ * seuls `featured`, `featuredOrder` et `categories` décident de ce qui apparaît sur la homepage.
  */
 const projects = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/projects' }),
@@ -15,7 +15,8 @@ const projects = defineCollection({
       title: z.string(),
       slug: z.string().regex(/^[a-z0-9-]+$/, 'slug : minuscules, chiffres et tirets uniquement'),
       year: z.number().int().optional(),
-      category: z.enum(categoryIds),
+      // Un projet peut apparaître dans plusieurs catégories.
+      categories: z.array(z.enum(categoryIds)).min(1),
       disciplines: z.array(z.string()).min(1),
       client: z.string().optional(),
       thumbnail: image(),

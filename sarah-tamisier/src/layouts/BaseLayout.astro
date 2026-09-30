@@ -32,6 +32,7 @@ const ogImage = new URL(image, Astro.site);
 <html lang={site.lang}>
   <head>
     <meta charset="utf-8" />
+    <script is:inline>document.documentElement.classList.add('js')</script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -57,7 +58,7 @@ const ogImage = new URL(image, Astro.site);
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
+    <a class="skip-link" href="#main">Aller au contenu</a>
     <Header />
     <main id="main">
       <slot />

@@ -2,10 +2,10 @@
 title: "Course poursuite — Maebi"
 slug: course-poursuite-maebi
 # year: 2025            # TODO : année à renseigner
-category: concept-art
-disciplines: ["Character Design", "Illustration"]
+categories: [illustration]
+disciplines: ["Charadesign", "Peinture digitale"]
 thumbnail: ../../assets/projects/course-poursuite-maebi/cover.jpg
-thumbnailAlt: "Placeholder image — Course poursuite — Maebi"
+thumbnailAlt: "Visuel provisoire — Course poursuite — Maebi"
 featured: true
 featuredOrder: 6
 placeholder: true

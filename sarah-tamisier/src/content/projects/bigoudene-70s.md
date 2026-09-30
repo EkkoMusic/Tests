@@ -2,11 +2,11 @@
 title: "Bigoudène 70’s"
 slug: bigoudene-70s
 # year: 2025            # TODO : année à renseigner
-category: design
-disciplines: ["Collection Design", "Illustration", "Product Design"]
+categories: [product-design]
+disciplines: ["Design de collection", "Illustration", "Design produit"]
 client: Monchoix
 thumbnail: ../../assets/projects/bigoudene-70s/cover.jpg
-thumbnailAlt: "Placeholder image — Bigoudène 70’s"
+thumbnailAlt: "Visuel provisoire — Bigoudène 70’s"
 featured: true
 featuredOrder: 2
 placeholder: true

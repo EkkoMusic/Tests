@@ -23,7 +23,7 @@ La page `/work/<slug>/` est générée automatiquement. Aucune modification de l
 |---|---|
 | Textes (hero, about, contact, SEO, réseaux) | `src/data/site.ts` |
 | Couleurs, typographies, espacements | `src/styles/global.css` (variables `:root`) |
-| Univers / catégories (filtres futurs) | `src/data/categories.ts` |
+| Catégories (filtres du hero, ordre) | `src/data/categories.ts` |
 | Rythme de la grille | `src/components/ProjectGrid.astro` |
 | Domaine et chemin de base | `astro.config.mjs` (`SITE_URL`, `BASE_PATH`) |
 
