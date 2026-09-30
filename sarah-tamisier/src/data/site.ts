@@ -25,6 +25,7 @@ export const site = {
     // Phrase courte optionnelle (mettre '' pour la masquer).
     statement: 'Illustratrice et designer, entre mondes imaginaires et objets bien réels.',
     filtersLabel: 'Afficher les projets par discipline',
+    portraitAlt: 'Portrait de Sarah Tamisier, de profil',
   },
 
   about: {
