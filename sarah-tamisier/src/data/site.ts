@@ -30,17 +30,16 @@ export const site = {
   about: {
     title: 'À propos',
     paragraphs: [
-      'Sarah Tamisier est illustratrice et designer, installée en Bretagne.',
-      'Depuis sept ans, elle travaille entre illustration, design produit et développement de collections.',
-      'Elle élargit aujourd’hui sa pratique au concept art et au visual development, en associant peinture digitale et 3D.',
+      'Je suis illustratrice et designer, installée en Bretagne.',
+      'Depuis sept ans, je travaille entre illustration, design produit et développement de collections.',
+      'J’élargis aujourd’hui ma pratique au concept art et au visual development, en associant peinture digitale et 3D.',
     ],
     moreLabel: 'En savoir plus',
     moreHref: '/a-propos/',
   },
 
   contact: {
-    //   = espace fine insécable avant « ? » (typographie française).
-    title: ['Un projet ?', 'Parlons-en.'],
+    title: ['Me contacter'],
     // TODO : adresse e-mail réelle. Ne jamais publier d'adresse postale ni de téléphone.
     email: 'hello@example.com',
     // Mettre l'URL pour afficher un lien, laisser vide pour le masquer.
