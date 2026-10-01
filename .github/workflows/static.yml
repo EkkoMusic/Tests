@@ -40,14 +40,23 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: sarah-tamisier/package-lock.json
+      - name: Install dependencies (Astro)
+        working-directory: sarah-tamisier
+        run: npm ci
+      - name: Restore optimized images cache
+        # Astro garde ici les images déjà compressées : sans ce cache, chaque
+        # publication recompresse toutes les images (~2 min au lieu de quelques secondes).
+        uses: actions/cache@v4
+        with:
+          path: sarah-tamisier/node_modules/.astro
+          key: astro-images-${{ hashFiles('sarah-tamisier/package-lock.json', 'sarah-tamisier/src/assets/**') }}
+          restore-keys: astro-images-
       - name: Build Sarah Tamisier portfolio (Astro)
         working-directory: sarah-tamisier
         env:
           SITE_URL: ${{ steps.pages.outputs.origin }}
           BASE_PATH: ${{ steps.pages.outputs.base_path }}/sarah-tamisier
-        run: |
-          npm ci
-          npm run build
+        run: npm run build
       - name: Assemble site
         # 4 Mousquetaires à la racine, portfolio de Sarah dans /sarah-tamisier/
         run: |
