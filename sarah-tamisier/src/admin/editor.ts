@@ -78,7 +78,7 @@ function toast(message: string, tone: 'info' | 'ok' | 'error' = 'info') {
   const box = document.querySelector('.st-toasts') ?? document.body.appendChild(h('div', { class: 'st-toasts', 'aria-live': 'polite' }));
   const item = h('div', { class: `st-toast st-toast--${tone}` }, message);
   box.append(item);
-  setTimeout(() => item.remove(), tone === 'error' ? 9000 : 5000);
+  setTimeout(() => item.remove(), tone === 'info' ? 5000 : 10000);
 }
 
 const slugify = (s: string) =>
@@ -216,7 +216,7 @@ const toBase64 = (blob: Blob) =>
 async function save() {
   const dirty = dirtyEntries();
   if (!dirty.length) return toast('Aucune modification à enregistrer.');
-  if (stale) return toast('Une publication est en cours : rechargez la page dans une minute avant d’enregistrer.', 'error');
+  if (stale) return toast('Une publication est en cours : rechargez la page dans quelques minutes avant d’enregistrer.', 'error');
 
   for (const e of dirty.filter((e) => !e.deleted)) {
     const d = e.data;
@@ -234,7 +234,7 @@ async function save() {
     const head = await headSha();
     if (expectedHead && head !== expectedHead) {
       stale = true;
-      throw new Error('Le site a été modifié entre-temps. Rechargez la page dans une minute, puis refaites vos modifications.');
+      throw new Error('Le site a été modifié entre-temps. Rechargez la page dans quelques minutes, puis refaites vos modifications.');
     }
     const base = await gh(`/git/commits/${head}`);
 
@@ -282,7 +282,7 @@ async function save() {
       location.href = BASE;
       return;
     }
-    toast('Publié. Le site en ligne sera à jour d’ici une à deux minutes.', 'ok');
+    toast('Publié. Le site en ligne sera à jour d’ici 3 à 5 minutes : rechargez alors la page.', 'ok');
   } catch (err) {
     toast((err as Error).message, 'error');
   } finally {
@@ -794,7 +794,7 @@ async function start() {
       if (head === expectedHead) return;
       stale = true;
       updateBar();
-      bar.after(h('div', { class: 'st-banner' }, 'Une publication récente n’est pas encore en ligne. Rechargez la page dans une minute avant de modifier.'));
+      bar.after(h('div', { class: 'st-banner' }, 'Une publication récente n’est pas encore en ligne. Rechargez la page dans quelques minutes avant de modifier.'));
     }).catch((err) => toast((err as Error).message, 'error'));
   }
 
