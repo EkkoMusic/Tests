@@ -30,7 +30,7 @@ const sizes: Record<Layout, string> = {
 
 <article class:list={['project', `l-${layout}`]}>
   <a class="project__link" href={url(projectHref(project))}>
-    <div class="project__media">
+    <div class:list={['project__media', { 'project__media--cutout': thumbnail.format === 'png' }]}>
       <Picture
         src={thumbnail}
         alt={thumbnailAlt}
@@ -60,6 +60,8 @@ const sizes: Record<Layout, string> = {
     overflow: hidden;
     background: color-mix(in srgb, var(--foreground) 6%, transparent);
   }
+  /* Visuel détouré (PNG transparent) : pas de fond derrière les produits. */
+  .project__media--cutout { background: none; }
   .project__media :global(img) {
     width: 100%;
     transition: transform var(--duration) var(--ease);

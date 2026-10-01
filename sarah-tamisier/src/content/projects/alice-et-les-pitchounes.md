@@ -5,7 +5,7 @@ slug: alice-et-les-pitchounes
 categories: [product-design]
 disciplines: ["Personnages", "Collection produit"]
 client: Monchoix
-thumbnail: ../../assets/projects/alice-et-les-pitchounes/cover.jpg
+thumbnail: ../../assets/projects/alice-et-les-pitchounes/cover.png
 thumbnailAlt: "Marguerite la vache d’Alice & les Pitchounes : peluche et porte-clés"
 featured: true
 featuredOrder: 7

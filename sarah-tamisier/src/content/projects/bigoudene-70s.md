@@ -5,7 +5,7 @@ slug: bigoudene-70s
 categories: [product-design]
 disciplines: ["Design de collection", "Illustration", "Design produit"]
 client: Monchoix
-thumbnail: ../../assets/projects/bigoudene-70s/cover.jpg
+thumbnail: ../../assets/projects/bigoudene-70s/cover.png
 thumbnailAlt: "Collection Bigoudène 70’s : tote bag, porte-clés, mug, coquetier et torchon aux bigoudènes stylisées"
 featured: true
 featuredOrder: 2

@@ -5,7 +5,7 @@ slug: bolipop
 categories: [product-design]
 disciplines: ["Produit", "Développement de collection"]
 client: Monchoix
-thumbnail: ../../assets/projects/bolipop/cover.jpg
+thumbnail: ../../assets/projects/bolipop/cover.png
 thumbnailAlt: "Bolipop, le bol à oreilles, en peluche et en porte-clés"
 featured: true
 featuredOrder: 9

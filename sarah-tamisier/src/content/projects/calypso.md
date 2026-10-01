@@ -5,7 +5,7 @@ slug: calypso
 categories: [product-design]
 disciplines: ["Design de collection", "Illustration"]
 client: Monchoix
-thumbnail: ../../assets/projects/calypso/cover.jpg
+thumbnail: ../../assets/projects/calypso/cover.png
 thumbnailAlt: "Collection Calypso : mug, pot, porte-clés crabe et homard, repose-cuillère aux sardines illustrées"
 featured: true
 featuredOrder: 5
