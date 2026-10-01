@@ -7,7 +7,7 @@
  * redéploie le site automatiquement.
  */
 import './editor.css';
-import { endSession, getSessionToken } from './auth';
+import { WRITE_DENIED, endSession, forgetVault, getSessionToken } from './auth';
 
 interface Img { src: string; alt: string }
 interface Data {
@@ -194,6 +194,11 @@ async function gh(path: string, body?: unknown, method = body ? 'POST' : 'GET') 
     body: body ? JSON.stringify(body) : undefined,
   });
   if (res.status === 401) throw new Error('Le jeton GitHub a expiré ou a été révoqué : reconnectez-vous depuis la page admin.');
+  if (res.status === 403 || (res.status === 404 && method !== 'GET')) {
+    // Jeton sans droit d'écriture : on l'oublie pour qu'un jeton corrigé soit demandé à la prochaine connexion.
+    forgetVault();
+    throw new Error(`${WRITE_DENIED} Puis reconnectez-vous depuis la page admin.`);
+  }
   if (!res.ok) throw new Error(`GitHub a refusé l’enregistrement (erreur ${res.status}).`);
   return res.json();
 }
