@@ -59,6 +59,9 @@ export async function openVault(password: string): Promise<string | null> {
 
 export const forgetVault = () => localStorage.removeItem(VAULT_KEY);
 
+export const WRITE_DENIED =
+  'Ce jeton peut lire le dépôt mais pas y écrire. Sur GitHub, modifiez le jeton : Repository permissions → Contents → « Read and write », et vérifiez que le dépôt Tests est bien sélectionné.';
+
 /** Vérifie que le jeton peut écrire dans le dépôt. Renvoie un message d'erreur, ou null. */
 export async function checkToken(token: string): Promise<string | null> {
   const { owner, name } = admin.repo;
@@ -68,8 +71,15 @@ export async function checkToken(token: string): Promise<string | null> {
     });
     if (res.status === 401) return 'Ce jeton GitHub est invalide ou a expiré.';
     if (!res.ok) return `Ce jeton n’a pas accès au dépôt ${owner}/${name}.`;
-    const repo = await res.json();
-    if (!repo.permissions?.push) return 'Ce jeton peut lire le dépôt mais pas y écrire (permission « Contents : Read and write » manquante).';
+    // Les droits renvoyés par GitHub sont ceux du compte, pas du jeton : on vérifie
+    // donc l'écriture pour de vrai, en créant un petit objet Git sans effet sur le site.
+    const write = await fetch(`https://api.github.com/repos/${owner}/${name}/git/blobs`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: 'test', encoding: 'utf-8' }),
+    });
+    if (write.status === 403 || write.status === 404) return WRITE_DENIED;
+    if (!write.ok) return `GitHub a refusé le test d’écriture (erreur ${write.status}).`;
     return null;
   } catch {
     return 'Impossible de joindre GitHub. Vérifiez la connexion.';

@@ -33,7 +33,7 @@ import { url } from '../../lib/url';
           <li>Ouvrez <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a> (connecté au compte {admin.repo.owner}).</li>
           <li>Nom : « Éditeur portfolio ». Expiration : au choix (1 an par exemple).</li>
           <li>Repository access : <em>Only select repositories</em> → <strong>{admin.repo.owner}/{admin.repo.name}</strong>.</li>
-          <li>Permissions → Repository permissions → <strong>Contents : Read and write</strong>.</li>
+          <li>Permissions → Repository permissions → <strong>Contents</strong> → choisissez <strong>Read and write</strong> (par défaut c’est « Read-only », ce qui empêche d’enregistrer).</li>
           <li>Cliquez « Generate token », copiez-le et collez-le ci-dessous.</li>
         </ol>
       </details>
@@ -98,11 +98,13 @@ import { url } from '../../lib/url';
 
     if (hasVault()) {
       const token = await openVault(password);
-      if (token && !(await checkToken(token))) return enter(token);
-      // Jeton expiré ou révoqué : on en redemande un.
+      const problem = token ? await checkToken(token) : null;
+      if (token && !problem) return enter(token);
+      // Jeton expiré, révoqué ou sans droit d'écriture : on en redemande un.
       forgetVault();
-    }
-    show('token');
+      show('token');
+      error(tokenForm, problem);
+    } else show('token');
     tokenForm.querySelector('input')!.focus();
   });
 
