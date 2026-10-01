@@ -40,6 +40,7 @@ const description = shortDescription ?? `${title} — ${disciplines.join(', ')}.
       sizes="min(100vw, 1760px)" loading="eager" fetchpriority="high" />
     {images.map((img) => (
       <Picture src={img.src} alt={img.alt} formats={['avif', 'webp']}
+        class:list={[{ 'is-portrait': img.src.height > img.src.width }]}
         widths={[720, 1280, 1920, 2400].filter((w) => w <= img.src.width)} sizes="min(100vw, 1760px)" />
     ))}
 
@@ -59,6 +60,8 @@ const description = shortDescription ?? `${title} — ${disciplines.join(', ')}.
   dt { color: var(--muted); }
   dd { margin: 0.25rem 0 0; }
   .project-page__desc { margin-top: var(--space-m); font-size: var(--step-1); max-width: 55ch; }
+  /* Une image verticale ne doit pas dépasser la hauteur de l'écran. */
+  .project-page :global(img.is-portrait) { max-height: 92vh; width: auto; margin-inline: auto; }
   .project-page__next { border-top: 1px solid var(--rule); padding-top: var(--space-s); display: grid; gap: 0.5rem; margin-top: var(--space-l); }
   .project-page__next span.label { color: var(--muted); }
   .project-page__next a { font-family: var(--font-display); font-size: var(--step-2); text-decoration: none; }
