@@ -1,11 +1,12 @@
 ---
 import { site } from '../data/site';
+import { url } from '../lib/url';
 
 const year = new Date().getFullYear();
 ---
 
 <footer class="footer container">
-  <p class="label">© {year} {site.name}</p>
+  <p class="label"><a class="footer__admin" href={url('/admin/')}>© {year} {site.name}</a></p>
   <a class="label" href="#main">Haut de page <span aria-hidden="true">↑</span></a>
 </footer>
 

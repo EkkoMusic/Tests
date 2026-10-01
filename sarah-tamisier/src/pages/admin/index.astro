@@ -1,0 +1,174 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { admin } from '../../data/admin';
+import { site } from '../../data/site';
+import { url } from '../../lib/url';
+---
+
+<BaseLayout title={`Administration — ${site.name}`} noindex>
+  <section class="admin container" data-admin-page data-home={url('/')}>
+    <p class="label admin__kicker">Administration</p>
+    <h1>Connexion</h1>
+
+    <!-- Étape 1 : mot de passe -->
+    <form class="admin__card" data-step="password">
+      <label class="admin__field">
+        <span class="label">Mot de passe</span>
+        <input type="password" name="password" autocomplete="current-password" required autofocus />
+      </label>
+      <button class="admin__btn" type="submit">Se connecter</button>
+      <p class="admin__error" role="alert" hidden></p>
+    </form>
+
+    <!-- Étape 2 : première connexion sur cet appareil, jeton GitHub -->
+    <form class="admin__card" data-step="token" hidden>
+      <p>
+        Première connexion sur cet appareil. Pour que vos modifications soient publiées,
+        collez un jeton GitHub. Il sera chiffré avec votre mot de passe et gardé
+        uniquement sur cet appareil.
+      </p>
+      <details>
+        <summary>Comment obtenir ce jeton ?</summary>
+        <ol>
+          <li>Ouvrez <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a> (connecté au compte {admin.repo.owner}).</li>
+          <li>Nom : « Éditeur portfolio ». Expiration : au choix (1 an par exemple).</li>
+          <li>Repository access : <em>Only select repositories</em> → <strong>{admin.repo.owner}/{admin.repo.name}</strong>.</li>
+          <li>Permissions → Repository permissions → <strong>Contents : Read and write</strong>.</li>
+          <li>Cliquez « Generate token », copiez-le et collez-le ci-dessous.</li>
+        </ol>
+      </details>
+      <label class="admin__field">
+        <span class="label">Jeton GitHub</span>
+        <input type="password" name="token" autocomplete="off" spellcheck="false" placeholder="github_pat_…" required />
+      </label>
+      <button class="admin__btn" type="submit">Enregistrer et continuer</button>
+      <p class="admin__error" role="alert" hidden></p>
+    </form>
+
+    <!-- Déjà connecté -->
+    <div class="admin__card" data-step="connected" hidden>
+      <p>Vous êtes connecté. Parcourez le site : un menu d’édition vous suit sur chaque page.</p>
+      <div class="admin__row">
+        <a class="admin__btn" href={url('/')}>Modifier le site</a>
+        <button class="admin__btn admin__btn--ghost" type="button" data-action="logout">Se déconnecter</button>
+      </div>
+      <button class="admin__link" type="button" data-action="forget">Oublier le jeton GitHub sur cet appareil</button>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { checkPassword, checkToken, endSession, forgetVault, getSessionToken, hasVault, openVault, saveVault, startSession } from '../../admin/auth';
+
+  const root = document.querySelector<HTMLElement>('[data-admin-page]')!;
+  const home = root.dataset.home!;
+  const steps = root.querySelectorAll<HTMLElement>('[data-step]');
+  const show = (name: string) => steps.forEach((s) => (s.hidden = s.dataset.step !== name));
+  let password = '';
+
+  function error(form: HTMLElement, message: string | null) {
+    const el = form.querySelector<HTMLElement>('.admin__error')!;
+    el.hidden = !message;
+    el.textContent = message ?? '';
+  }
+
+  function busy(form: HTMLFormElement, on: boolean) {
+    const btn = form.querySelector('button')!;
+    btn.disabled = on;
+    btn.classList.toggle('is-busy', on);
+  }
+
+  function enter(token: string) {
+    startSession(token);
+    location.href = home;
+  }
+
+  if (getSessionToken()) show('connected');
+
+  const pwForm = root.querySelector<HTMLFormElement>('[data-step="password"]')!;
+  pwForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    busy(pwForm, true);
+    error(pwForm, null);
+    const value = (pwForm.elements.namedItem('password') as HTMLInputElement).value;
+    const ok = await checkPassword(value);
+    busy(pwForm, false);
+    if (!ok) return error(pwForm, 'Mot de passe incorrect.');
+    password = value;
+
+    if (hasVault()) {
+      const token = await openVault(password);
+      if (token && !(await checkToken(token))) return enter(token);
+      // Jeton expiré ou révoqué : on en redemande un.
+      forgetVault();
+    }
+    show('token');
+    tokenForm.querySelector('input')!.focus();
+  });
+
+  const tokenForm = root.querySelector<HTMLFormElement>('[data-step="token"]')!;
+  tokenForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    busy(tokenForm, true);
+    error(tokenForm, null);
+    const token = (tokenForm.elements.namedItem('token') as HTMLInputElement).value.trim();
+    const problem = await checkToken(token);
+    if (problem) {
+      busy(tokenForm, false);
+      return error(tokenForm, problem);
+    }
+    await saveVault(password, token);
+    enter(token);
+  });
+
+  root.querySelector('[data-action="logout"]')!.addEventListener('click', () => {
+    endSession();
+    show('password');
+  });
+  root.querySelector('[data-action="forget"]')!.addEventListener('click', () => {
+    forgetVault();
+    endSession();
+    show('password');
+  });
+</script>
+
+<style>
+  .admin { padding-block: var(--space-l) var(--space-section); max-width: 40rem; }
+  .admin__kicker { color: var(--muted); }
+  h1 { font-family: var(--font-display); font-size: var(--step-4); letter-spacing: -0.02em; margin: 0.5rem 0 var(--space-m); }
+  .admin__card { display: grid; gap: 1.25rem; }
+  .admin__card[hidden] { display: none; }
+  .admin__field { display: grid; gap: 0.4rem; }
+  .admin__field input {
+    font: inherit;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--rule);
+    border-radius: 0;
+    background: color-mix(in srgb, var(--background) 60%, white);
+    color: var(--foreground);
+  }
+  .admin__field input:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+  .admin__row { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .admin__btn {
+    justify-self: start;
+    font: inherit;
+    font-size: var(--step--1);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 0.85rem 1.4rem;
+    border: 1px solid var(--foreground);
+    background: var(--foreground);
+    color: var(--background);
+    cursor: pointer;
+  }
+  .admin__btn:hover { background: var(--accent); border-color: var(--accent); }
+  .admin__btn:disabled { opacity: 0.6; cursor: progress; }
+  .admin__btn--ghost { background: transparent; color: var(--foreground); }
+  .admin__btn--ghost:hover { color: var(--background); }
+  .admin__link { justify-self: start; font: inherit; font-size: var(--step--1); background: none; border: 0; padding: 0; color: var(--muted); text-decoration: underline; cursor: pointer; }
+  .admin__error { color: var(--accent); }
+  details { color: var(--muted); }
+  summary { cursor: pointer; color: var(--foreground); }
+  ol { margin-top: 0.75rem; padding-left: 1.25rem; display: grid; gap: 0.4rem; }
+</style>
