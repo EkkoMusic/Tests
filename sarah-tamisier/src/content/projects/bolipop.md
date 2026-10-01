@@ -5,13 +5,14 @@ slug: bolipop
 categories: [product-design]
 disciplines: ["Produit", "Développement de collection"]
 client: Monchoix
-thumbnail: ../../assets/projects/bolipop/cover.jpg
-thumbnailAlt: "Visuel provisoire — Bolipop"
+thumbnail: ../../assets/projects/bolipop/cover.png
+thumbnailAlt: "Bolipop, le bol à oreilles, en peluche et en porte-clés"
 featured: true
-featuredOrder: 9
-placeholder: true
-# shortDescription: ""  # TODO : texte court fourni par Sarah
-# images:               # TODO : visuels de la page projet
-#   - src: ../../assets/projects/bolipop/01.jpg
-#     alt: ""
+featuredOrder: 5
+shortDescription: "Bolipop, le bol à oreilles devenu personnage : une peluche et un porte-clés silicone dans l’univers Alice & les Pitchounes."
+images:
+  - src: ../../assets/projects/bolipop/photo.jpg
+    alt: "Une petite fille brandit Bolipop au bord d’un lac"
+  - src: ../../assets/projects/bolipop/magalogue.jpg
+    alt: "Page Bolipop et ses amis du Magalogue Monchoix 2026-2027"
 ---
