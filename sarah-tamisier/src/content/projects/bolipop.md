@@ -8,7 +8,7 @@ client: Monchoix
 thumbnail: ../../assets/projects/bolipop/cover.png
 thumbnailAlt: "Bolipop, le bol à oreilles, en peluche et en porte-clés"
 featured: true
-featuredOrder: 9
+featuredOrder: 5
 shortDescription: "Bolipop, le bol à oreilles devenu personnage : une peluche et un porte-clés silicone dans l’univers Alice & les Pitchounes."
 images:
   - src: ../../assets/projects/bolipop/photo.jpg
