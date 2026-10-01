@@ -1,5 +1,5 @@
 ---
-title: "Alice & les Pitchounevvs"
+title: "Alice & les Pitchounes"
 slug: "alice-et-les-pitchounes"
 categories: ["product-design"]
 disciplines: ["Personnages", "Collection produit"]
