@@ -1,0 +1,56 @@
+# Régie Vidéo : tests et compilation de l'exécutable Windows sur une vraie machine Windows.
+name: Régie Vidéo (Windows)
+
+on:
+  push:
+    paths:
+      - "regie-video/**"
+      - ".github/workflows/regie-video.yml"
+  pull_request:
+    paths:
+      - "regie-video/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: regie-video
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: regie-video/requirements-dev.txt
+
+      - name: Dépendances
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Tests automatisés
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: python -m pytest -q
+
+      - name: Compilation PyInstaller (onedir)
+        run: pyinstaller --noconfirm --clean RegieVideo.spec
+
+      - name: Auto-test de RegieVideo.exe (lecture H.264 + fin de média)
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath "dist\RegieVideo\RegieVideo.exe" -ArgumentList "--self-test" -Wait -PassThru
+          Get-Content "$env:APPDATA\RegieVideo\logs\selftest.txt"
+          exit $p.ExitCode
+
+      - name: Publication de la distribution
+        uses: actions/upload-artifact@v4
+        with:
+          name: RegieVideo-windows
+          path: regie-video/dist/RegieVideo
+          retention-days: 30
