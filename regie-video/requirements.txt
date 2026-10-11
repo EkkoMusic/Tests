@@ -1,2 +1,2 @@
 # Dépendances d'exécution (version testée)
-PySide6-Essentials==6.12.0
+PySide6==6.12.0

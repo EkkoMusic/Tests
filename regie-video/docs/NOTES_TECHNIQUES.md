@@ -5,7 +5,7 @@
 | Besoin | Choix | Raison |
 |---|---|---|
 | Langage | Python 3.12 | Stable, PySide6 officiellement pris en charge |
-| Interface | PySide6 (Qt 6.12, module *Essentials*) | Qt Widgets natif Windows, haute densité, feuilles de style ; *Essentials* contient Qt Multimedia et Qt SVG, sans les modules lourds inutiles |
+| Interface | PySide6 6.12 (Qt 6) | Qt Widgets natif Windows, haute densité, feuilles de style. Le paquet complet est requis : sous Windows, Qt Multimedia est livré dans « PySide6-Addons » et non dans « Essentials » (détecté par la CI Windows) |
 | Vidéo | Qt Multimedia, backend FFmpeg | Inclus dans PySide6, décodage H.264/AAC, matériel quand disponible ; événement `EndOfMedia` fiable |
 | Projets | JSON versionné | Lisible, diagnostiquable, migrable |
 | Distribution | PyInstaller *onedir* | Plus simple à diagnostiquer avec les plugins Qt et les DLL FFmpeg |

@@ -192,4 +192,4 @@ build_windows.bat
 - `RegieVideo.exe --self-test` lit la vidéo embarquée, vérifie la détection de fin de média et écrit `%APPDATA%\RegieVideo\logs\selftest.txt` : c'est la preuve que les bibliothèques multimédias sont bien présentes dans la distribution.
 - La CI GitHub (`.github/workflows/regie-video.yml`) exécute les tests, compile l'exécutable et lance cet auto-test **sur une machine Windows** à chaque modification du dossier `regie-video/`, puis publie le dossier `RegieVideo` en artefact téléchargeable.
 
-Dépendance d'exécution : **PySide6-Essentials 6.12.0** (Qt 6, LGPL v3), qui embarque Qt Multimedia et FFmpeg (LGPL v2.1+). Les icônes de l'interface sont dessinées pour Régie Vidéo dans l'esprit des jeux d'icônes à trait.
+Dépendance d'exécution : **PySide6 6.12.0** (Qt 6, LGPL v3), qui embarque Qt Multimedia et FFmpeg (LGPL v2.1+). Les icônes de l'interface sont dessinées pour Régie Vidéo dans l'esprit des jeux d'icônes à trait.
