@@ -124,6 +124,9 @@ class ThumbnailService(QObject):
             return
         image = frame.toImage()
         if image.isNull():
+            # Image décodée mais non convertible par le processeur (HDR 10 bits…) :
+            # le décodage est prouvé, seule la vignette manque.
+            self._finish(True, "", None)
             return
         thumb = image.scaled(THUMB_SIZE, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
         self._finish(True, "", thumb)

@@ -121,3 +121,40 @@ def test_launch_cancelled_on_missing_files(window, media, monkeypatch):
     monkeypatch.setattr(dialogs, "launch_check", lambda parent, issues: seen.append(issues) or False)
     window.launch_show()
     assert seen and window._projection is None
+
+
+def test_media_information_panel_shows_real_values(window, fixtures_dir, qtbot):
+    from app.media.media_info import find_ffprobe
+
+    window._add_paths([str(fixtures_dir / "media" / "res_3289x1480_444.mp4")])
+    cue = window.show_model.cues[0]
+    qtbot.waitUntil(lambda: window.thumbs.result_for(cue.video_path) is not None, timeout=30000)
+    if find_ffprobe():
+        qtbot.waitUntil(lambda: window.analyzer.result_for(cue.video_path) is not None, timeout=30000)
+    window._show_in_editor(cue)
+    panel = window.editor.media_panel
+    assert panel.video._values["Résolution"].text().startswith("3289 × 1480")
+    assert panel.video._values["Format"].text() == "2,22:1"
+    assert panel.verdict.text() != "Analyse…"
+    status = window.cue_model.status(cue.id)
+    assert status.detail == "3289 × 1480"
+
+
+def test_diagnostic_dialog_with_real_playback_test(window, fixtures_dir, qtbot):
+    from app.media.diagnostic import Overall
+    from app.ui.diagnostic_dialog import DiagnosticDialog
+
+    window._add_paths([str(fixtures_dir / "media" / "fps_25.mp4"), str(fixtures_dir / "media" / "audio_stereo_48k.mp4")])
+    dlg = DiagnosticDialog(window, window)
+    dlg.play_test.setChecked(True)
+    dlg.passes.setValue(2)
+    dlg.run()
+    qtbot.waitUntil(lambda: dlg._report is not None, timeout=60000)
+    report = dlg._report
+    assert report.playback_tested
+    assert all(len(runs) == 2 for runs in dlg._playback.values())
+    assert report.overall in (Overall.READY, Overall.CHECK, Overall.BLOCKING)
+    text = report.to_text("Test")
+    assert "Lecture réelle" in text and "Projection" in text
+    assert window._projection is None  # aucun passage en projection
+    dlg.reject()
