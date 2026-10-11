@@ -95,7 +95,7 @@ class QtPlaybackEngine(PlaybackEngine):
         self._accept_frames = True
         if not path or not os.path.isfile(path):
             # Erreur différée : l'appelant reçoit l'événement après son propre traitement.
-            QTimer.singleShot(0, lambda t=token: self._fail(t, "fichier vidéo introuvable"))
+            QTimer.singleShot(0, self, lambda t=token: self._fail(t, "fichier vidéo introuvable"))
             return
         # Source vidée puis redéfinie : force un vrai rechargement, même pour le
         # même fichier (« Recommencer »).

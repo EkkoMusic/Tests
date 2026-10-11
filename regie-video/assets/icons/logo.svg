@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7F97FF"/>
+      <stop offset="1" stop-color="#A07CFF"/>
+    </linearGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="56" fill="url(#bg)"/>
+  <!-- faisceau de projecteur -->
+  <path d="M128 40 L200 210 L56 210 Z" fill="url(#beam)"/>
+  <!-- plateau -->
+  <rect x="48" y="196" width="160" height="14" rx="7" fill="#0E1117" fill-opacity="0.55"/>
+  <!-- lecture -->
+  <path d="M100 92 L100 168 Q100 178 109 173 L168 138 Q176 133 168 128 L109 87 Q100 82 100 92 Z" fill="#FFFFFF"/>
+</svg>
