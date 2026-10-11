@@ -29,6 +29,8 @@ IDLE ──GO──▶ LOADING ──1re image──▶ PLAYING ──fin de mé
 - Chaque lecture reçoit un **jeton** ; les événements du moteur portent ce jeton. Un événement tardif d'une lecture précédente (fin, erreur) est ignoré.
 - Le contrôleur (`show_controller.py`) ne connaît pas Qt : il donne des ordres à une interface `ShowOutput`, implémentée par `ProjectionPresenter`. Les tests de conduite utilisent un faux `ShowOutput`.
 
+> **Version 1.1** : le rendu par défaut est désormais accéléré par la carte graphique (Qt Quick), et la surface décrite ci-dessous devient le rendu « Compatibilité ». Les mesures, les choix et les limites de fidélité sont dans [QUALITE_DIFFUSION.md](QUALITE_DIFFUSION.md). Les garanties de transition (pas de noir, pas de flash, dernière image conservée) sont identiques dans les deux rendus et testées.
+
 ## Transition vidéo → image finale
 
 Le risque principal d'un tel logiciel est le « flash » au changement de média (bureau visible, noir, fenêtre vidéo native qui se reconstruit). Solution retenue :
@@ -66,7 +68,8 @@ Un test automatique (`test_transitions_never_paint_black_in_between`) enregistre
 | Ctrl+Maj+Échap intercepté par Windows | Remplacé par Ctrl+Maj+Q (documenté) |
 | Codec non pris en charge découvert en direct | Analyse en préparation + vérification au lancement |
 | Notifications / perte de focus Windows | Documenté ; fenêtre au premier plan ; réinitialisation de l'état clavier à la perte de focus |
-| Conversion d'image par le processeur en 4K | Conversion paresseuse (seules les images réellement affichées) ; moteur libmpv possible derrière `PlaybackEngine` |
+| Conversion d'image par le processeur en 4K | Résolu en 1.1 : rendu GPU par défaut, sans conversion (mesures dans QUALITE_DIFFUSION.md) |
+| Chrominance 4:2:2/4:4:4 réduite par Qt | Signalé par le diagnostic ; moteur libmpv possible derrière `PlaybackEngine` |
 | DLL FFmpeg absentes de l'exécutable | `RegieVideo.exe --self-test` exécuté dans la CI Windows après chaque compilation |
 
 ## Ce qui reste à vérifier sous Windows, sur le matériel réel
