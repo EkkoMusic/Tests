@@ -6,7 +6,8 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+# Affichage virtuel par défaut ; REGIE_VIDEO_QPA permet un vrai rendu (tests GPU).
+os.environ.setdefault("QT_QPA_PLATFORM", os.environ.get("REGIE_VIDEO_QPA", "offscreen"))
 
 FIXTURES = Path(__file__).parent / "fixtures"
 

@@ -18,6 +18,10 @@ echo [2/5] Installation des dépendances...
 python -m pip install --upgrade pip > nul
 python -m pip install -r requirements-dev.txt || goto :erreur
 
+echo [2b/5] FFprobe pour le diagnostic des médias...
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\get_ffprobe.ps1 || goto :erreur
+set PATH=%~dp0vendor\ffmpeg;%PATH%
+
 echo [3/5] Tests automatisés...
 set QT_QPA_PLATFORM=offscreen
 python -m pytest -q || goto :erreur
@@ -26,7 +30,7 @@ set QT_QPA_PLATFORM=
 echo [4/5] Compilation avec PyInstaller...
 pyinstaller --noconfirm --clean RegieVideo.spec || goto :erreur
 
-echo [5/5] Auto-test de l'exécutable (lecture vidéo + fin de média)...
+echo [5/5] Auto-test de l'exécutable (lecture vidéo, rendu GPU, FFprobe)...
 dist\RegieVideo\RegieVideo.exe --self-test
 if errorlevel 1 (
     echo L'auto-test a échoué : voir %%APPDATA%%\RegieVideo\logs\selftest.txt

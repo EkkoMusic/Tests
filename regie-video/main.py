@@ -50,32 +50,68 @@ def create_application(argv: list[str]):
 
 
 def run_self_test() -> int:
-    """Lit la vidéo de test embarquée et vérifie l'événement de fin de média.
+    """Vérifie la distribution : moteur vidéo, rendu GPU, analyse FFprobe.
 
-    Utilisé après compilation pour vérifier que les bibliothèques
-    multimédias (plugin FFmpeg de Qt) sont bien présentes dans la distribution.
+    Lit la vidéo de test embarquée jusqu'à l'événement de fin de média,
+    affiche une image dans la surface Qt Quick et analyse la vidéo avec
+    FFprobe. Utilisé par la CI après compilation (bibliothèques Qt, FFmpeg,
+    modules QML et FFprobe bien présents dans le dossier livré).
     """
     from PySide6.QtCore import QTimer
+    from PySide6.QtGui import QColor, QImage
     from PySide6.QtMultimedia import QMediaFormat
     from PySide6.QtWidgets import QApplication
 
+    from app.media.media_info import ffprobe_version, find_ffprobe, probe_file
     from app.media.playback_engine import QtPlaybackEngine
 
     app = QApplication.instance() or create_application(sys.argv[:1])
+    video = str(resource_path("selftest", "selftest.mp4"))
     engine = QtPlaybackEngine(with_audio=False)
     result = {"started": False, "ended": False, "frames": 0, "error": ""}
     engine.started.connect(lambda _t: result.update(started=True))
     engine.frameReady.connect(lambda _f: result.update(frames=result["frames"] + 1))
     engine.failed.connect(lambda _t, m: (result.update(error=m), app.quit()))
     engine.ended.connect(lambda _t: (result.update(ended=True), app.quit()))
-    engine.load(str(resource_path("selftest", "selftest.mp4")), 1)
+    engine.load(video, 1)
     engine.play()
     QTimer.singleShot(20_000, app.quit)
     app.exec()
     codecs = [c.name for c in QMediaFormat().supportedVideoCodecs(QMediaFormat.ConversionMode.Decode)]
-    ok = result["started"] and result["ended"] and result["frames"] > 0 and not result["error"]
+    video_ok = result["started"] and result["ended"] and result["frames"] > 0 and not result["error"]
+
+    # Rendu accéléré (Qt Quick) : la scène doit afficher une image de test.
+    gpu_ok, gpu_detail = False, ""
+    try:
+        from app.ui.widgets.quick_surface import QuickVideoSurface
+
+        surface = QuickVideoSurface()
+        surface.resize(160, 90)
+        surface.show()
+        img = QImage(16, 9, QImage.Format.Format_RGB32)
+        img.fill(QColor(255, 0, 0))
+        surface.show_still(img)
+        grab = surface.grab_image()
+        color = grab.pixelColor(80, 45) if not grab.isNull() else QColor()
+        gpu_ok = color.red() > 200 and color.green() < 60
+        gpu_detail = f"API {surface.graphics_api()}, pixel central {color.name()}"
+        surface.close()
+    except Exception as exc:
+        gpu_detail = f"échec : {exc}"
+
+    tool = find_ffprobe()
+    probe_ok, probe_detail = False, "FFprobe introuvable"
+    if tool:
+        info = probe_file(video, tool)
+        probe_ok = info.ok and info.video is not None and info.video.coded_width == 320
+        probe_detail = f"{ffprobe_version(tool)} — {info.error or 'analyse correcte'}"
+    require_probe = getattr(sys, "frozen", False)
+    ok = video_ok and gpu_ok and (probe_ok or not require_probe)
     report = (f"{APP_NAME} {__version__} — auto-test {'RÉUSSI' if ok else 'ÉCHOUÉ'}\n"
-              f"images décodées : {result['frames']}, fin détectée : {result['ended']}, erreur : {result['error'] or 'aucune'}\n"
+              f"lecture : images décodées {result['frames']}, fin détectée {result['ended']}, "
+              f"erreur {result['error'] or 'aucune'}\n"
+              f"rendu accéléré : {'OK' if gpu_ok else 'ÉCHEC'} ({gpu_detail})\n"
+              f"analyse FFprobe : {'OK' if probe_ok else 'ÉCHEC'} ({probe_detail})\n"
               f"décodeurs vidéo : {', '.join(codecs)}\n")
     (logs_dir() / "selftest.txt").write_text(report, encoding="utf-8")
     logging.getLogger("selftest").info(report)

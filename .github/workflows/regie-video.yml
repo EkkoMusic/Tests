@@ -33,15 +33,28 @@ jobs:
       - name: Dépendances
         run: python -m pip install -r requirements-dev.txt
 
-      - name: Tests automatisés
+      - name: FFprobe (build LGPL BtbN, livré avec l'application)
+        shell: pwsh
+        run: ./tools/get_ffprobe.ps1
+
+      - name: Tests automatisés (affichage virtuel)
         env:
           QT_QPA_PLATFORM: offscreen
-        run: python -m pytest -q
+        run: |
+          $env:PATH = "$PWD\vendor\ffmpeg;$env:PATH"
+          python -m pytest -q -rs
+
+      - name: Tests du rendu GPU (Direct3D 11, rendu réel)
+        env:
+          REGIE_VIDEO_QPA: windows
+        run: |
+          $env:PATH = "$PWD\vendor\ffmpeg;$env:PATH"
+          python -m pytest -q -rs -m gpu tests/ui/test_gpu_surface.py
 
       - name: Compilation PyInstaller (onedir)
         run: pyinstaller --noconfirm --clean RegieVideo.spec
 
-      - name: Auto-test de RegieVideo.exe (lecture H.264 + fin de média)
+      - name: Auto-test de RegieVideo.exe (lecture, rendu GPU, FFprobe)
         shell: pwsh
         run: |
           $p = Start-Process -FilePath "dist\RegieVideo\RegieVideo.exe" -ArgumentList "--self-test" -Wait -PassThru
