@@ -26,10 +26,17 @@ class SurfaceMode(str, Enum):
     STILL = "still"
 
 
-def target_rect(content: QSize, area: QRect, fit: FitMode) -> QRectF:
-    """Rectangle centré qui respecte les proportions du contenu."""
+def target_rect(content: QSize, area: QRect, fit: FitMode, device_ratio: float = 1.0) -> QRectF:
+    """Rectangle centré qui respecte les proportions du contenu.
+
+    ``content`` est en pixels du média ; ``area`` en pixels logiques. En taille
+    native, un pixel du média occupe un pixel physique de l'écran.
+    """
     if content.isEmpty() or area.isEmpty():
         return QRectF(area)
+    if fit is FitMode.NATIVE:
+        w, h = content.width() / device_ratio, content.height() / device_ratio
+        return QRectF(area.x() + (area.width() - w) / 2, area.y() + (area.height() - h) / 2, w, h)
     scaled = content.scaled(
         area.size(),
         Qt.AspectRatioMode.KeepAspectRatio if fit is FitMode.FIT else Qt.AspectRatioMode.KeepAspectRatioByExpanding,
@@ -40,6 +47,9 @@ def target_rect(content: QSize, area: QRect, fit: FitMode) -> QRectF:
 
 
 class VideoSurface(QWidget):
+    """Rendu « Compatibilité » : conversion et dessin par le processeur."""
+
+    renderer_name = "Compatibilité (processeur)"
     def __init__(self, parent: QWidget | None = None, background: QColor | None = None) -> None:
         super().__init__(parent)
         self._background = background or QColor(0, 0, 0)
@@ -140,7 +150,7 @@ class VideoSurface(QWidget):
         key = (image.cacheKey(), area.width(), area.height(), ratio, self._fit)
         if self._still_scaled is not None and self._still_scaled_key == key:
             return self._still_scaled
-        rect = target_rect(image.size(), area, self._fit)
+        rect = target_rect(image.size(), area, self._fit, ratio)
         size = QSize(max(1, round(rect.width() * ratio)), max(1, round(rect.height() * ratio)))
         pixmap = QPixmap.fromImage(
             image.scaled(size, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
@@ -156,13 +166,13 @@ class VideoSurface(QWidget):
             return
         if self._mode is SurfaceMode.STILL and self._still is not None:
             pixmap = self._scaled_pixmap(self._still)
-            rect = target_rect(self._still.size(), self.rect(), self._fit)
+            rect = target_rect(self._still.size(), self.rect(), self._fit, self.devicePixelRatioF())
             painter.fillRect(rect, Qt.GlobalColor.black)
             painter.drawPixmap(rect.topLeft(), pixmap)
         elif self._mode is SurfaceMode.VIDEO and self._frame is not None:
             image = self._frame.toImage()  # conversion uniquement des images réellement peintes
             if not image.isNull():
                 painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
-                rect = target_rect(image.size(), self.rect(), self._fit)
+                rect = target_rect(image.size(), self.rect(), self._fit, self.devicePixelRatioF())
                 painter.fillRect(rect, Qt.GlobalColor.black)
                 painter.drawImage(rect, image)

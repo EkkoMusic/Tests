@@ -15,9 +15,20 @@ from __future__ import annotations
 
 import logging
 import os
+import time
 
 from PySide6.QtCore import QObject, QTimer, QUrl, Signal
-from PySide6.QtMultimedia import QAudioDevice, QAudioOutput, QMediaDevices, QMediaPlayer, QVideoFrame, QVideoSink
+from PySide6.QtMultimedia import (
+    QAudioDevice,
+    QAudioOutput,
+    QMediaDevices,
+    QMediaMetaData,
+    QMediaPlayer,
+    QVideoFrame,
+    QVideoSink,
+)
+
+from .telemetry import FrameTelemetry
 
 log = logging.getLogger(__name__)
 
@@ -42,6 +53,11 @@ class PlaybackEngine(QObject):
     def stop(self) -> None: raise NotImplementedError
     def seek(self, position_ms: int) -> None: raise NotImplementedError
     def set_volume(self, volume: float) -> None: raise NotImplementedError
+    def set_muted(self, muted: bool) -> None: raise NotImplementedError
+    def set_muted(self, muted: bool) -> None:
+        if self._audio is not None:
+            self._audio.setMuted(muted)
+
     def set_audio_device(self, device_id: str) -> None: raise NotImplementedError
     def is_playing(self) -> bool: raise NotImplementedError
     def duration(self) -> int: raise NotImplementedError
@@ -70,6 +86,7 @@ class QtPlaybackEngine(PlaybackEngine):
             self._player.setAudioOutput(self._audio)
             self._devices = QMediaDevices(self)
             self._devices.audioOutputsChanged.connect(self._on_audio_outputs_changed)
+        self.telemetry = FrameTelemetry()
         self._token = 0
         self._started = False
         self._ended = False
@@ -93,6 +110,8 @@ class QtPlaybackEngine(PlaybackEngine):
         self._started = False
         self._ended = False
         self._accept_frames = True
+        self.telemetry.reset(launched_at=time.monotonic())
+        self.telemetry.fps = None
         if not path or not os.path.isfile(path):
             # Erreur différée : l'appelant reçoit l'événement après son propre traitement.
             QTimer.singleShot(0, self, lambda t=token: self._fail(t, "fichier vidéo introuvable"))
@@ -108,6 +127,7 @@ class QtPlaybackEngine(PlaybackEngine):
 
     def pause(self) -> None:
         self._player.pause()
+        self.telemetry.interrupt()
 
     def stop(self) -> None:
         self._watchdog.stop()
@@ -116,11 +136,16 @@ class QtPlaybackEngine(PlaybackEngine):
 
     def seek(self, position_ms: int) -> None:
         self._ended = False
+        self.telemetry.interrupt()
         self._player.setPosition(max(0, int(position_ms)))
 
     def set_volume(self, volume: float) -> None:
         if self._audio is not None:
             self._audio.setVolume(max(0.0, min(1.0, volume)))
+
+    def set_muted(self, muted: bool) -> None:
+        if self._audio is not None:
+            self._audio.setMuted(muted)
 
     def set_audio_device(self, device_id: str) -> None:
         self._device_id = device_id or ""
@@ -144,12 +169,19 @@ class QtPlaybackEngine(PlaybackEngine):
         # on l'ignore, la dernière image valide reste affichée.
         if not self._accept_frames or not frame.isValid():
             return
+        self.telemetry.feed(time.monotonic(), frame.startTime())
         self.frameReady.emit(frame)
         if not self._started:
             self._mark_started()
 
     def _on_status(self, status: QMediaPlayer.MediaStatus) -> None:
         S = QMediaPlayer.MediaStatus
+        if status == S.LoadedMedia:
+            rate = self._player.metaData().value(QMediaMetaData.Key.VideoFrameRate)
+            try:
+                self.telemetry.fps = float(rate) if rate else None
+            except (TypeError, ValueError):
+                self.telemetry.fps = None
         if status in (S.BufferedMedia, S.BufferingMedia) and not self._started and not self._player.hasVideo():
             if self.is_playing():
                 self._mark_started()  # fichier sans piste vidéo
@@ -158,7 +190,7 @@ class QtPlaybackEngine(PlaybackEngine):
             self._watchdog.stop()
             if not self._started:
                 self._mark_started()
-            log.info("Fin de média (jeton %d)", self._token)
+            log.info("Fin de média (jeton %d) : %s", self._token, self.telemetry.report().summary_fr())
             self.ended.emit(self._token)
         elif status == S.InvalidMedia:
             self._fail(self._token, "fichier corrompu ou format non pris en charge")
@@ -185,9 +217,14 @@ class QtPlaybackEngine(PlaybackEngine):
         self.failed.emit(token, message)
 
     # ------------------------------------------------------------------ audio
+    def current_audio_device(self) -> QAudioDevice | None:
+        return self._audio.device() if self._audio is not None else None
+
     def _apply_audio_device(self) -> None:
         if self._audio is None:
             return
+        if not QMediaDevices.audioOutputs():
+            log.error("Aucune sortie audio disponible : la vidéo sera lue sans son")
         device = QMediaDevices.defaultAudioOutput()
         if self._device_id:
             for candidate in QMediaDevices.audioOutputs():

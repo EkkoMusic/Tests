@@ -19,12 +19,38 @@ MAX_RECENT = 8
 
 
 class FitMode(str, Enum):
-    FIT = "fit"    # image entière, bandes noires si besoin
-    FILL = "fill"  # remplit l'écran, rogne ce qui dépasse
+    FIT = "fit"        # image entière, bandes noires si besoin
+    FILL = "fill"      # remplit l'écran, rogne ce qui dépasse
+    NATIVE = "native"  # un pixel du média = un pixel de l'écran, centré
 
     @property
     def label(self) -> str:
-        return {FitMode.FIT: "Ajuster (bandes noires)", FitMode.FILL: "Remplir (recadrer)"}[self]
+        return {
+            FitMode.FIT: "Adapter à l'écran (recommandé)",
+            FitMode.FILL: "Remplir l'écran (recadrage)",
+            FitMode.NATIVE: "Taille native (1:1)",
+        }[self]
+
+    @property
+    def consequence(self) -> str:
+        return {
+            FitMode.FIT: "Toute l'image est visible, sans déformation. Des bandes noires apparaissent "
+                         "si le format du média diffère de celui de l'écran.",
+            FitMode.FILL: "L'écran est entièrement rempli, sans déformation, mais les bords du média "
+                          "qui dépassent sont coupés.",
+            FitMode.NATIVE: "Aucune mise à l'échelle : un média plus petit que l'écran est entouré de noir, "
+                            "un média plus grand est coupé. Utile seulement si le média est à la résolution exacte du projecteur.",
+        }[self]
+
+
+class Renderer(str, Enum):
+    GPU = "gpu"  # Qt Quick, rendu par la carte graphique (recommandé)
+    CPU = "cpu"  # rendu logiciel par le processeur (compatibilité)
+
+    @property
+    def label(self) -> str:
+        return {Renderer.GPU: "Accéléré par la carte graphique (recommandé)",
+                Renderer.CPU: "Compatibilité (processeur)"}[self]
 
 
 @dataclass
@@ -34,6 +60,7 @@ class AppSettings:
     recent_projects: list[str] = field(default_factory=list)
     # Projection
     fit_mode: str = FitMode.FIT.value
+    renderer: str = Renderer.GPU.value
     projection_screen: str = ""          # nom de l'écran ; vide = écran principal
     # Audio
     master_volume: int = 100
@@ -55,6 +82,13 @@ class AppSettings:
             return FitMode(self.fit_mode)
         except ValueError:
             return FitMode.FIT
+
+    @property
+    def render_mode(self) -> Renderer:
+        try:
+            return Renderer(self.renderer)
+        except ValueError:
+            return Renderer.GPU
 
     @property
     def effective_repeat_interval_ms(self) -> int:

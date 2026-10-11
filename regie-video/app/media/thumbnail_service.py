@@ -12,11 +12,11 @@ from __future__ import annotations
 import logging
 import os
 from collections import deque
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from PySide6.QtCore import QObject, QSize, Qt, QTimer, QUrl, Signal
 from PySide6.QtGui import QImage
-from PySide6.QtMultimedia import QMediaPlayer, QVideoFrame, QVideoSink
+from PySide6.QtMultimedia import QMediaFormat, QMediaMetaData, QMediaPlayer, QVideoFrame, QVideoSink
 
 from .image_loader import read_image
 
@@ -34,6 +34,7 @@ class ProbeResult:
     thumbnail: QImage | None = None
     error: str = ""
     has_audio: bool = False
+    qt_meta: dict = field(default_factory=dict)  # métadonnées Qt (repli si FFprobe absent)
 
 
 def _cache_key(path: str) -> tuple[str, float, int] | None:
@@ -101,6 +102,7 @@ class ThumbnailService(QObject):
         S = QMediaPlayer.MediaStatus
         if status == S.LoadedMedia:
             self._duration = int(self._player.duration()) or None
+            self._meta = qt_metadata(self._player)
             if not self._player.hasVideo():
                 self._finish(False, "aucune piste vidéo")
                 return
@@ -135,7 +137,8 @@ class ThumbnailService(QObject):
         has_audio = self._player.hasAudio()
         self._player.stop()
         self._player.setSource(QUrl())
-        result = ProbeResult(path, ok, self._duration, thumb, error, has_audio)
+        result = ProbeResult(path, ok, self._duration, thumb, error, has_audio, getattr(self, "_meta", {}))
+        self._meta = {}
         if not ok:
             log.warning("Vidéo non lisible %s : %s", path, error)
         key = _cache_key(path)
@@ -143,6 +146,28 @@ class ThumbnailService(QObject):
             self._cache[key] = result
         self.probed.emit(result)
         QTimer.singleShot(0, self, self._next)
+
+
+def qt_metadata(player: QMediaPlayer) -> dict:
+    md = player.metaData()
+    K = QMediaMetaData.Key
+
+    def val(key):
+        v = md.value(key)
+        return None if v is None or v == "" else v
+
+    res = val(K.Resolution)
+    vcodec, acodec = val(K.VideoCodec), val(K.AudioCodec)
+    return {
+        "resolution": (res.width(), res.height()) if res is not None and not res.isEmpty() else None,
+        "fps": float(val(K.VideoFrameRate)) if val(K.VideoFrameRate) else None,
+        "video_codec": QMediaFormat.videoCodecName(vcodec).lower().replace(".", "") if vcodec is not None else None,
+        "audio_codec": QMediaFormat.audioCodecName(acodec).lower() if acodec is not None else None,
+        "video_bit_rate": val(K.VideoBitRate),
+        "audio_bit_rate": val(K.AudioBitRate),
+        "duration_ms": int(player.duration()) or None,
+        "has_audio": player.hasAudio(),
+    }
 
 
 def image_thumbnail(path: str, size: QSize = THUMB_SIZE) -> QImage:

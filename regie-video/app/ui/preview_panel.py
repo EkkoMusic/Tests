@@ -15,13 +15,13 @@ from app.media.image_loader import read_image
 from app.media.media_validator import FileStatus, video_status
 from app.media.playback_engine import QtPlaybackEngine
 from app.models import Cue, EndBehavior
-from app.persistence.app_settings import FitMode
+from app.persistence.app_settings import FitMode, Renderer
 from app.utils.timefmt import format_clock
 
 from .theme import icons
 from .theme.tokens import COLORS, SPACE
 from .widgets.common import label, tool_button
-from .widgets.video_surface import VideoSurface
+from .widgets.surfaces import create_surface
 
 
 class _AspectBox(QWidget):
@@ -54,7 +54,7 @@ class _AspectBox(QWidget):
 class PreviewPanel(QWidget):
     durationDetected = Signal(str, int)  # id de séquence, durée
 
-    def __init__(self, parent: QWidget | None = None) -> None:
+    def __init__(self, parent: QWidget | None = None, renderer: Renderer = Renderer.GPU, fit: FitMode = FitMode.FIT) -> None:
         super().__init__(parent)
         self._cue: Cue | None = None
         self._token = 0
@@ -62,8 +62,8 @@ class PreviewPanel(QWidget):
         self._seeking = False
 
         self.engine = QtPlaybackEngine(self)
-        self.surface = VideoSurface(background=None)
-        self.surface.set_fit_mode(FitMode.FIT)
+        self.surface = create_surface(renderer)
+        self.surface.set_fit_mode(fit)
         self.engine.frameReady.connect(self.surface.set_video_frame)
         self.engine.positionChanged.connect(self._on_position)
         self.engine.durationChanged.connect(self._on_duration)
@@ -128,6 +128,9 @@ class PreviewPanel(QWidget):
         self.set_cue(None)
 
     # ------------------------------------------------------------- public
+    def set_fit_mode(self, fit: FitMode) -> None:
+        self.surface.set_fit_mode(fit)
+
     def set_preview_volume(self, value: int) -> None:
         self.volume.setValue(value)
         self._apply_volume()

@@ -25,6 +25,7 @@ from app.media.media_validator import FileStatus, image_status, video_status
 from app.models import Cue, EndBehavior
 from app.utils.timefmt import format_clock
 
+from .media_panel import MediaInfoPanel
 from .theme.tokens import COLORS, SPACE
 from .widgets.common import Pill, SegmentedControl, button, icon_label, label, section_label
 
@@ -209,6 +210,9 @@ class CueEditor(QWidget):
         self.remove_image.clicked.connect(lambda: self._emit({"image_path": ""}))
         ib.addWidget(self.remove_image, 0, Qt.AlignmentFlag.AlignLeft)
         lay.addWidget(self.image_box)
+        lay.addSpacing(SPACE.lg)
+        self.media_panel = MediaInfoPanel()
+        lay.addWidget(self.media_panel)
         lay.addStretch(1)
 
         self._stack.setCurrentIndex(0)
@@ -243,6 +247,9 @@ class CueEditor(QWidget):
         if message:
             self.video_pill.set_kind("error", "Illisible")
             self.video_pill.setToolTip(message)
+
+    def set_media(self, info, assessment, display, fit, analyzing: bool = False) -> None:
+        self.media_panel.set_data(info, assessment, display, fit, analyzing)
 
     def focus_name(self) -> None:
         self.name_edit.setFocus(Qt.FocusReason.ShortcutFocusReason)

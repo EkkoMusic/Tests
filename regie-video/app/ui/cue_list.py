@@ -39,8 +39,9 @@ CueRole = Qt.ItemDataRole.UserRole + 1
 
 @dataclass
 class CueStatus:
-    kind: str   # success | error | warning | neutral
+    kind: str   # success | error | warning | neutral | accent
     text: str
+    detail: str = ""  # résolution du média, affichée discrètement dans la carte
 
 
 class CueListModel(QAbstractListModel):
@@ -303,6 +304,9 @@ class CueDelegate(QStyledItemDelegate):
         fm = QFontMetrics(self._meta_font)
         file_name = Path(cue.video_path.replace("\\", "/")).name if cue.video_path else "Aucune vidéo"
         meta = f"{file_name}   ·   {format_clock(cue.duration_ms)}"
+        detail = self._model.status(cue.id).detail
+        if detail:
+            meta += f"   ·   {detail}"
         painter.drawPixmap(QPoint(int(x), int(cy + 5)), icons.pixmap("film", COLORS.text_3, 13))
         painter.drawText(QRectF(x + 19, cy + 2, text_w - 19, 20), Qt.AlignmentFlag.AlignVCenter,
                          fm.elidedText(meta, Qt.TextElideMode.ElideMiddle, int(text_w - 19)))
@@ -344,6 +348,7 @@ class CueDelegate(QStyledItemDelegate):
             "success": (COLORS.success, QColor(85, 200, 155, 36)),
             "error": (COLORS.error, QColor(239, 100, 106, 40)),
             "warning": (COLORS.warning, QColor(242, 180, 90, 36)),
+            "accent": (COLORS.accent_hover, QColor(115, 140, 255, 40)),
         }.get(status.kind, (COLORS.text_2, QColor(COLORS.surface_3)))
         painter.setFont(self._pill_font)
         fm = QFontMetrics(self._pill_font)

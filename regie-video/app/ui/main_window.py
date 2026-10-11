@@ -8,7 +8,8 @@ import uuid
 from pathlib import Path
 
 from PySide6.QtCore import QSize, Qt, QTimer
-from PySide6.QtGui import QAction, QCloseEvent, QKeySequence
+from PySide6.QtGui import QAction, QCloseEvent, QGuiApplication, QKeySequence
+from PySide6.QtMultimedia import QMediaDevices
 from PySide6.QtWidgets import (
     QFileDialog,
     QHBoxLayout,
@@ -32,6 +33,10 @@ from app.media.media_validator import (
     validate_show,
     video_status,
 )
+from app.media import system_info
+from app.media.analyzer import MediaAnalyzer
+from app.media.compatibility import Assessment, assess_media
+from app.media.media_info import MediaInfo, fr_number, media_info_from_qt
 from app.media.thumbnail_service import ProbeResult, ThumbnailService
 from app.models import Cue, EndBehavior, Show
 from app.persistence.app_settings import AppSettings
@@ -92,6 +97,15 @@ class MainWindow(QMainWindow):
 
         self.thumbs = ThumbnailService(self)
         self.thumbs.probed.connect(self._on_probed)
+        self.analyzer = MediaAnalyzer(self)
+        self.analyzer.analyzed.connect(self._on_analyzed)
+        self.system = system_info.collect(self.settings.projection_screen, self.settings.audio_device_id)
+        self._devices = QMediaDevices(self)
+        self._devices.audioOutputsChanged.connect(self.refresh_system)
+        app = QGuiApplication.instance()
+        app.screenAdded.connect(lambda _s: self.refresh_system())
+        app.screenRemoved.connect(lambda _s: self.refresh_system())
+        app.primaryScreenChanged.connect(lambda _s: self.refresh_system())
 
         root = QWidget()
         root.setObjectName("AppRoot")
@@ -152,20 +166,21 @@ class MainWindow(QMainWindow):
         self.name_edit.setToolTip("Cliquez pour renommer le spectacle")
         self.name_edit.editingFinished.connect(self._rename_show)
         lay.addWidget(self.name_edit, 1)
-        self.dirty_label = label("● Modifications non enregistrées", "dirty")
+        self.dirty_label = label("● Non enregistré", "dirty")
+        self.dirty_label.setToolTip("Le spectacle contient des modifications non enregistrées (Ctrl+S)")
         lay.addWidget(self.dirty_label)
         lay.addStretch(1)
 
-        self.new_btn = button("Nouveau", "file-plus", "ghost", tooltip="Nouveau spectacle (Ctrl+N)")
+        self.new_btn = tool_button("file-plus", "Nouveau spectacle (Ctrl+N)", 18)
         self.new_btn.clicked.connect(self.new_show)
-        self.open_btn = button("Ouvrir", "folder-open", "ghost", tooltip="Ouvrir un spectacle (Ctrl+O)")
+        self.open_btn = tool_button("folder-open", "Ouvrir un spectacle (Ctrl+O)", 18)
         self.open_btn.clicked.connect(lambda: self.open_show())
         self.recent_btn = tool_button("chevron-down", "Spectacles récents", 14)
         self.recent_menu = QMenu(self)
         self.recent_menu.aboutToShow.connect(self._fill_recent_menu)
         self.recent_btn.setMenu(self.recent_menu)
         self.recent_btn.setPopupMode(self.recent_btn.ToolButtonPopupMode.InstantPopup)
-        self.save_btn = button("Enregistrer", "save", "ghost", tooltip="Enregistrer (Ctrl+S)")
+        self.save_btn = tool_button("save", "Enregistrer (Ctrl+S)", 18)
         self.save_btn.clicked.connect(self.save)
         self.more_btn = tool_button("chevron-down", "Plus d'actions", 14)
         more = QMenu(self)
@@ -182,6 +197,10 @@ class MainWindow(QMainWindow):
         lay.addSpacing(SPACE.md)
         lay.addWidget(divider(vertical=True))
         lay.addSpacing(SPACE.md)
+        self.check_btn = button("Vérifier la diffusion", "shield", "", tooltip="Diagnostic avant spectacle : médias, écran, son")
+        self.check_btn.clicked.connect(self.open_diagnostic)
+        lay.addWidget(self.check_btn)
+        lay.addSpacing(SPACE.xs)
         self.launch_btn = button("Lancer le spectacle", "play", "launch", tooltip="Entrer en mode spectacle (F5)")
         self.launch_btn.setIconSize(QSize(14, 14))
         self.launch_btn.clicked.connect(self.launch_show)
@@ -221,7 +240,7 @@ class MainWindow(QMainWindow):
     def _build_side(self) -> QWidget:
         side = QSplitter(Qt.Orientation.Vertical)
         side.setChildrenCollapsible(False)
-        self.preview = PreviewPanel()
+        self.preview = PreviewPanel(renderer=self.settings.render_mode, fit=self.settings.fit)
         self.preview.durationDetected.connect(self._on_duration_detected)
         preview_panel, pl = _panel("Prévisualisation", Pill("Hors conduite", "neutral"))
         pl.addWidget(self.preview, 1)
@@ -260,6 +279,11 @@ class MainWindow(QMainWindow):
         self.st_missing = label("", "caption")
         lay.addWidget(self.st_missing)
         lay.addStretch(1)
+        self.st_output_icon = icon_label("monitor", COLORS.text_3, 14)
+        lay.addWidget(self.st_output_icon)
+        self.st_output = label("", "caption")
+        lay.addWidget(self.st_output)
+        lay.addSpacing(SPACE.md)
         self.st_state = label("", "caption")
         lay.addWidget(self.st_state)
         lay.addSpacing(SPACE.md)
@@ -328,9 +352,52 @@ class MainWindow(QMainWindow):
         if cue.end_behavior is EndBehavior.IMAGE and cue.image_path and image_status(cue.image_path) is not FileStatus.OK:
             return CueStatus("warning", "Image manquante")
         probe = self.thumbs.result_for(cue.video_path)
-        if probe is None:
-            return CueStatus("neutral", "Analyse…")
-        return CueStatus("success", "Prête")
+        info = self.media_info_for(cue)
+        detail = ""
+        if info and info.video and info.video.display_size:
+            detail = "{} × {}".format(*info.video.display_size)
+        if probe is None or (info is None and self.analyzer.available):
+            return CueStatus("neutral", "Analyse…", detail)
+        verdict = self.assess(cue).verdict
+        return CueStatus(verdict.kind, verdict.short, detail)
+
+    # ------------------------------------------------- analyse des médias
+    def media_info_for(self, cue: Cue) -> MediaInfo | None:
+        if not cue.video_path:
+            return None
+        info = self.analyzer.result_for(cue.video_path)
+        if info is None and not self.analyzer.available:
+            probe = self.thumbs.result_for(cue.video_path)
+            if probe is not None and probe.qt_meta:
+                info = media_info_from_qt(cue.video_path, probe.qt_meta)
+        return info
+
+    def assess(self, cue: Cue, playback=None) -> Assessment:
+        probe = self.thumbs.result_for(cue.video_path) if cue.video_path else None
+        decode_ok = None if probe is None else probe.ok
+        out = self.system.audio_output
+        display = self.system.projection
+        return assess_media(
+            self.media_info_for(cue), decode_ok, probe.error if probe else "",
+            display.physical_size if display else None, display.refresh_hz if display else None,
+            out.max_channels if out else None, out.sample_rate if out else None, playback,
+            "cpu" if self.preview.surface.renderer_name.startswith("Compat") else "gpu",
+        )
+
+    def refresh_system(self) -> None:
+        self.system = system_info.collect(self.settings.projection_screen, self.settings.audio_device_id)
+        self.refresh_statuses()
+        self._show_in_editor(self.selected_cue())
+
+    def _on_analyzed(self, info: MediaInfo) -> None:
+        for cue in self.show_model.cues:
+            if cue.video_path == info.path:
+                if info.duration_ms and not cue.duration_ms:
+                    cue.duration_ms = info.duration_ms
+                self.cue_model.set_status(cue.id, self._status_for(cue))
+                if self.selected_cue() is cue:
+                    self._show_in_editor(cue)
+        self._update_status_bar()
 
     def _update_status_bar(self) -> None:
         show = self.show_model
@@ -360,6 +427,16 @@ class MainWindow(QMainWindow):
         self.st_state.setText(state)
         self.list_stack.setCurrentIndex(1 if n else 0)
         self.launch_btn.setEnabled(n > 0)
+        self.check_btn.setEnabled(n > 0)
+        d = self.system.projection
+        out = self.system.audio_output
+        text = f"Sortie {d.physical_size[0]} × {d.physical_size[1]}" if d else "Sortie non détectée"
+        if d and d.refresh_hz:
+            text += f" · {fr_number(d.refresh_hz)} Hz"
+        if out is None or self.system.audio_selected_missing:
+            text += " · ⚠ sortie audio absente" if out is None else " · ⚠ sortie audio choisie absente"
+        self.st_output.setText(text)
+        self.st_output.setToolTip((d.describe() if d else "") + (f"\nAudio : {out.description} ({out.describe()})" if out else "\nAucune sortie audio"))
 
     # ============================================================== séquences
     def selected_cue(self) -> Cue | None:
@@ -389,6 +466,13 @@ class MainWindow(QMainWindow):
         self.editor.set_cue(cue, image)
         if cue is not None and cue.video_path in self._probe_errors:
             self.editor.set_probe_error(self._probe_errors[cue.video_path])
+        if cue is not None:
+            info = self.media_info_for(cue)
+            analyzing = video_status(cue) is FileStatus.OK and (
+                self.thumbs.result_for(cue.video_path) is None
+                or (info is None and self.analyzer.available))
+            assessment = self.assess(cue) if video_status(cue) is FileStatus.OK else None
+            self.editor.set_media(info, assessment, self.system.projection, self.settings.fit, analyzing)
 
     def add_videos(self) -> None:
         start = str(Path(self.show_model.cues[-1].video_path).parent) if self.show_model.cues else (
@@ -511,6 +595,7 @@ class MainWindow(QMainWindow):
     def _request_probe(self, cue: Cue) -> None:
         if video_status(cue) is FileStatus.OK:
             self.thumbs.request(cue.video_path)
+            self.analyzer.request(cue.video_path)
 
     def _on_probed(self, result: ProbeResult) -> None:
         if result.ok:
@@ -703,7 +788,18 @@ class MainWindow(QMainWindow):
             if dlg.show_settings is not None and dlg.show_settings != self.show_model.settings:
                 self.show_model.settings = dlg.show_settings
                 self.mark_dirty()
+            self.preview.set_fit_mode(self.settings.fit)
+            self.refresh_system()
             self.toast.show_message("Paramètres enregistrés")
+
+    def open_diagnostic(self) -> None:
+        if not self.show_model.cues:
+            return
+        from .diagnostic_dialog import DiagnosticDialog
+
+        self.preview.stop()
+        dlg = DiagnosticDialog(self, self)
+        dlg.exec()
 
     # ========================================================== mode spectacle
     def launch_show(self) -> None:

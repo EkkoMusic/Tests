@@ -24,11 +24,13 @@ TIMEOUT = 15000
 @pytest.fixture
 def media(fixtures_dir, tmp_path):
     for f in fixtures_dir.iterdir():
-        shutil.copy(f, tmp_path / f.name)
+        if f.is_file():
+            shutil.copy(f, tmp_path / f.name)
     return tmp_path
 
 
 def make_window(qtbot, cues, **settings_kw):
+    settings_kw.setdefault("renderer", "cpu")  # rendu vérifiable pixel par pixel hors écran
     settings = AppSettings(confirm_exit=True, repeat_interval_ms=100, **settings_kw)
     show = Show(name="Test", cues=cues)
     show.settings.end_of_show = EndOfShowBehavior.BLACK

@@ -11,7 +11,7 @@ from __future__ import annotations
 import logging
 import time
 
-from PySide6.QtCore import QEvent, QKeyCombination, Qt, Signal
+from PySide6.QtCore import QEvent, QKeyCombination, QRect, Qt, QTimer, Signal
 from PySide6.QtGui import QGuiApplication, QKeyEvent, QKeySequence, QScreen
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
@@ -26,6 +26,7 @@ from app.models import Cue, EndBehavior, EndOfShowBehavior, Show
 from app.persistence.app_settings import AppSettings
 from app.utils.power import keep_display_awake
 
+from .widgets.surfaces import create_surface
 from .widgets.video_surface import VideoSurface
 
 log = logging.getLogger(__name__)
@@ -41,6 +42,11 @@ def key_event_text(event: QKeyEvent) -> str:
     return QKeySequence(QKeyCombination(modifiers, key)).toString(QKeySequence.SequenceFormat.PortableText)
 
 
+def effective_volume(cue_volume: int, master_volume: int) -> float:
+    """Gain linéaire appliqué : jamais d'amplification (1,0 = niveau d'origine)."""
+    return max(0.0, min(1.0, cue_volume / 100 * master_volume / 100))
+
+
 class ProjectionPresenter:
     """Traduit les ordres du contrôleur en affichage (implémente ShowOutput)."""
 
@@ -51,10 +57,32 @@ class ProjectionPresenter:
         self.settings = settings
         self.images = ImagePreloader()
         self._cues = show.cues
-        self.images.preload(show.settings.standby_image_path)
-        for cue in show.cues[:2]:
-            self.images.preload(cue.image_path)
+        self._warm_path = ""
+        self._warm_timer = QTimer()
+        self._warm_timer.setInterval(100)
+        self._warm_timer.timeout.connect(self._warm_still)
         engine.frameReady.connect(surface.set_video_frame)
+
+    def prepare(self, area: QRect, ratio: float) -> None:
+        """À appeler quand la taille de projection est connue : les images
+        finales sont décodées et mises à l'échelle en arrière-plan."""
+        prescaler = getattr(self.surface, "prescaler", None)
+        if prescaler is not None:
+            from .widgets.quick_surface import make_prescaler
+
+            self.images.transform = make_prescaler(area, ratio, self.settings.fit)
+        self.images.preload(self.show.settings.standby_image_path)
+        for cue in self.show.cues[:2]:
+            self.images.preload(cue.image_path)
+
+    def _warm_still(self) -> None:
+        """Envoie l'image finale au GPU pendant la vidéo, sans jamais attendre."""
+        image = self.images.ready(self._warm_path)
+        if image is None:
+            return
+        self._warm_timer.stop()
+        if not image.isNull():
+            self.surface.prepare_still(image)
 
     # --------------------------------------------------------- ShowOutput
     def show_standby(self) -> None:
@@ -67,10 +95,13 @@ class ProjectionPresenter:
         index = self.show.index_of(cue.id)
         if 0 <= index + 1 < len(self._cues):
             self.images.preload(self._cues[index + 1].image_path)
-        self.engine.set_volume(cue.volume / 100 * self.settings.master_volume / 100)
+        self.engine.set_volume(effective_volume(cue.volume, self.settings.master_volume))
         self.surface.begin_video()
         self.engine.load(cue.video_path, token)
         self.engine.play()
+        if cue.effective_end_behavior is EndBehavior.IMAGE and hasattr(self.surface, "prescaler"):
+            self._warm_path = cue.image_path
+            self._warm_timer.start()
 
     def show_cue_end(self, cue: Cue, live: bool) -> None:
         behavior = cue.effective_end_behavior
@@ -129,7 +160,7 @@ class ProjectionWindow(QWidget):
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setStyleSheet("background: #000000;")
 
-        self.surface = VideoSurface(self)
+        self.surface = create_surface(settings.render_mode, self)
         self.surface.set_fit_mode(settings.fit)
         self.surface.setCursor(Qt.CursorShape.BlankCursor)
         layout = QVBoxLayout(self)
@@ -163,19 +194,23 @@ class ProjectionWindow(QWidget):
         screen = self.target_screen()
         self.setScreen(screen)
         self.setGeometry(screen.geometry())
+        self.presenter.prepare(QRect(0, 0, screen.geometry().width(), screen.geometry().height()), screen.devicePixelRatio())
         self.controller.start()
         self.showFullScreen()
         self.raise_()
         self.activateWindow()
         self.setFocus(Qt.FocusReason.ActiveWindowFocusReason)
         keep_display_awake(True)
-        log.info("Projection ouverte sur l'écran « %s » (%s)", screen.name(), screen.geometry())
+        log.info("Projection ouverte sur l'écran « %s » (%s, ×%.2f, %.2f Hz), rendu : %s",
+                 screen.name(), screen.geometry(), screen.devicePixelRatio(), screen.refreshRate(),
+                 self.surface.renderer_name)
 
     def leave(self) -> None:
         if self._allow_close:
             return
         self._allow_close = True
         self.engine.stop()
+        self.presenter._warm_timer.stop()
         self.presenter.images.shutdown()
         keep_display_awake(False)
         log.info("Sortie du mode spectacle (état : %s)", self.controller.state.value)

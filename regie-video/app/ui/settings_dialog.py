@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QListWidget,
     QListWidgetItem,
+    QScrollArea,
     QSlider,
     QSpinBox,
     QStackedWidget,
@@ -29,7 +30,8 @@ from app.core.keyboard_controller import ShowAction, bindings_from_config, descr
 from app.media.formats import IMAGE_FILTER
 from app.media.playback_engine import audio_device_id
 from app.models import EndOfShowBehavior, ShowSettings
-from app.persistence.app_settings import AppSettings, FitMode
+from app.media import system_info
+from app.persistence.app_settings import AppSettings, FitMode, Renderer
 from app.utils.paths import logs_dir
 
 from .theme import icons
@@ -100,7 +102,7 @@ class SettingsDialog(QDialog):
 
         self._add_page("Général", "settings", self._general_page())
         self._add_page("Projection", "monitor", self._projection_page())
-        self._add_page("Audio", "volume", self._audio_page())
+        self._add_page("Audio et diffusion", "volume", self._audio_page())
         self._add_page("Sécurité", "shield", self._security_page())
         self._add_page("Clavier", "keyboard", self._keyboard_page())
         self.nav.currentRowChanged.connect(self.pages.setCurrentIndex)
@@ -108,7 +110,13 @@ class SettingsDialog(QDialog):
 
     def _add_page(self, title: str, icon_name: str, page: QWidget) -> None:
         self.nav.addItem(QListWidgetItem(icons.icon(icon_name, COLORS.text_2), title))
-        self.pages.addWidget(page)
+        page.setObjectName("Transparent")
+        scroll = QScrollArea()
+        scroll.setObjectName("Transparent")
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setWidget(page)
+        self.pages.addWidget(scroll)
 
     @staticmethod
     def _page(title: str, subtitle: str) -> tuple[QWidget, QVBoxLayout]:
@@ -154,7 +162,34 @@ class SettingsDialog(QDialog):
         for mode in FitMode:
             self.fit_combo.addItem(mode.label, mode.value)
         self.fit_combo.setCurrentIndex(max(0, self.fit_combo.findData(self.settings.fit_mode)))
-        lay.addWidget(_row("Proportions", "Les images ne sont jamais étirées. Les espaces libres sont noirs.", self.fit_combo))
+        self.fit_combo.setMinimumWidth(240)
+        lay.addWidget(_row("Mise à l'échelle", "Les images ne sont jamais étirées ni déformées. Les espaces libres sont noirs.",
+                           self.fit_combo))
+        self.fit_help = label("", "caption", wrap=True)
+        self.fit_help.setStyleSheet(f"color: {COLORS.accent_hover};")
+        lay.addWidget(self.fit_help)
+        self.fit_combo.currentIndexChanged.connect(
+            lambda _i: self.fit_help.setText(FitMode(self.fit_combo.currentData()).consequence))
+        self.fit_help.setText(FitMode(self.fit_combo.currentData()).consequence)
+        lay.addWidget(divider())
+        self.renderer_combo = QComboBox()
+        for r in Renderer:
+            self.renderer_combo.addItem(r.label, r.value)
+        self.renderer_combo.setCurrentIndex(max(0, self.renderer_combo.findData(self.settings.renderer)))
+        self.renderer_combo.setMinimumWidth(240)
+        lay.addWidget(_row("Rendu vidéo",
+                           "Accéléré : les images décodées vont directement à la carte graphique, sans conversion "
+                           "par le processeur. Compatibilité : à n'utiliser qu'en cas de problème d'affichage. "
+                           "Pris en compte au prochain lancement du spectacle (et au redémarrage pour la prévisualisation).",
+                           self.renderer_combo))
+        lay.addWidget(divider())
+        screens = QVBoxLayout()
+        screens.setSpacing(2)
+        for d in system_info.collect(with_ffprobe=False).displays:
+            screens.addWidget(label(f"{d.name}{' (principal)' if d.primary else ''} : {d.describe()}", "caption"))
+        holder = QWidget()
+        holder.setLayout(screens)
+        lay.addWidget(_row("Écrans détectés", "Résolution réelle de la sortie, distincte de celle des médias.", holder))
 
         if self.show_settings is not None:
             lay.addSpacing(SPACE.lg)
@@ -184,7 +219,7 @@ class SettingsDialog(QDialog):
         return page
 
     def _audio_page(self) -> QWidget:
-        page, lay = self._page("Audio", "Son des vidéos pendant le spectacle.")
+        page, lay = self._page("Audio et diffusion", "Son des vidéos pendant le spectacle.")
         vol = QWidget()
         vl = QHBoxLayout(vol)
         vl.setContentsMargins(0, 0, 0, 0)
@@ -197,7 +232,9 @@ class SettingsDialog(QDialog):
         self.master.valueChanged.connect(lambda v: value.setText(f"{v} %"))
         vl.addWidget(self.master)
         vl.addWidget(value)
-        lay.addWidget(_row("Volume général", "Multiplié par le volume propre à chaque séquence.", vol))
+        lay.addWidget(_row("Volume général",
+                           "100 % = niveau d'origine du fichier. Le logiciel n'amplifie jamais le son, "
+                           "n'applique ni égaliseur, ni compresseur, ni normalisation.", vol))
         lay.addWidget(divider())
         self.device_combo = QComboBox()
         self.device_combo.addItem("Sortie système par défaut", "")
@@ -207,8 +244,30 @@ class SettingsDialog(QDialog):
         self.device_combo.setMinimumWidth(240)
         lay.addWidget(_row("Sortie audio", "Si la sortie choisie disparaît, le son bascule sur la sortie par défaut.",
                            self.device_combo))
+        self.device_info = label("", "caption", wrap=True)
+        lay.addWidget(self.device_info)
+        self.device_combo.currentIndexChanged.connect(lambda _i: self._update_device_info())
+        self._update_device_info()
+        lay.addWidget(divider())
+        lay.addWidget(label(
+            "Fidélité : le son est décodé depuis le fichier d'origine, sans réencodage, à vitesse et hauteur "
+            "inchangées, synchronisé sur l'horloge audio. En revanche, Windows (mode partagé) peut rééchantillonner "
+            "le son à la fréquence de la sortie et mixer les canaux : la sortie n'est donc pas garantie « bit à bit ». "
+            "Pour une restitution optimale, réglez la fréquence de la sortie dans Windows (Paramètres son → Propriétés "
+            "du périphérique) sur celle des fichiers, généralement 48 kHz.", "caption", wrap=True))
         lay.addStretch(1)
         return page
+
+    def _update_device_info(self) -> None:
+        info = system_info.collect(audio_device=self.device_combo.currentData() or "", with_ffprobe=False)
+        out = info.audio_output
+        if out is None:
+            self.device_info.setText("⚠ Aucune sortie audio disponible : branchez ou activez un périphérique dans Windows.")
+            self.device_info.setStyleSheet(f"color: {COLORS.warning};")
+            return
+        self.device_info.setStyleSheet("")
+        default = " (sortie par défaut de Windows)" if out.is_default else ""
+        self.device_info.setText(f"Utilisée : {out.description}{default} — format de mixage annoncé : {out.describe()}.")
 
     def _security_page(self) -> QWidget:
         page, lay = self._page("Sécurité", "Protections contre les erreurs de manipulation.")
@@ -285,6 +344,7 @@ class SettingsDialog(QDialog):
         s.reopen_last_project = self.reopen.isChecked()
         s.projection_screen = self.screen_combo.currentData() or ""
         s.fit_mode = self.fit_combo.currentData()
+        s.renderer = self.renderer_combo.currentData()
         s.master_volume = self.master.value()
         s.audio_device_id = self.device_combo.currentData() or ""
         s.confirm_exit = self.confirm_exit.isChecked()

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from concurrent.futures import Future, ThreadPoolExecutor
+from typing import Callable
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QImage, QImageReader
@@ -37,15 +38,24 @@ class ImagePreloader:
     images finales proches de la séquence en cours y séjournent.
     """
 
-    def __init__(self, capacity: int = 6) -> None:
+    def __init__(self, capacity: int = 6, transform: Callable[[QImage], QImage] | None = None) -> None:
         self._pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="images")
         self._cache: dict[str, Future] = {}
         self._capacity = capacity
+        # Traitement appliqué dans le fil d'arrière-plan (mise à la taille de
+        # l'écran) : le fil de l'interface ne fait jamais ce travail coûteux.
+        self.transform = transform
+
+    def _load(self, path: str) -> QImage:
+        image = read_image(path)
+        if self.transform is not None and not image.isNull():
+            image = self.transform(image)
+        return image
 
     def preload(self, path: str) -> None:
         if not path or path in self._cache:
             return
-        self._cache[path] = self._pool.submit(read_image, path)
+        self._cache[path] = self._pool.submit(self._load, path)
         while len(self._cache) > self._capacity:
             self._cache.pop(next(iter(self._cache)))
 
@@ -57,6 +67,16 @@ class ImagePreloader:
             return self._cache[path].result(timeout=5)
         except Exception:
             log.exception("Chargement d'image impossible : %s", path)
+            return QImage()
+
+    def ready(self, path: str) -> QImage | None:
+        """Image si elle est déjà décodée, sans jamais attendre."""
+        future = self._cache.get(path)
+        if future is None or not future.done():
+            return None
+        try:
+            return future.result()
+        except Exception:
             return QImage()
 
     def clear(self) -> None:
